@@ -1,12 +1,13 @@
 [package]
-name = "server"
+name = "icarus-server"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4.9.0"
+axum = { version = "0.7.5", features = ["macros"] }
+tokio = { version = "1.39.3", features = ["full"] }
+
 chrono = "0.4.38"
-env_logger = "0.11.5"
 serde = { version = "1.0.209", features = ["derive"] }
 serde_json = "1.0.127"
 uuid = { version = "1.10.0", features = ["v4", "serde"] }

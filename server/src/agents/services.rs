@@ -1,43 +1,69 @@
 use super::models::{AgentEntry, AgentStatus, CreateAgent};
 use crate::AppState;
-use actix_web::{get, post, web, HttpResponse, Responder};
+
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{delete, get, post},
+    Json, Router,
+};
 use serde_json::json;
 use uuid::Uuid;
 
-#[post("/agents/register")]
-async fn create_agent(
-    data: web::Data<AppState>,
-    param_obj: web::Json<CreateAgent>,
-    request: actix_web::HttpRequest,
-) -> impl Responder {
-    let mut agents = match data.agents_entries.lock() {
-        Ok(t) => t,
-        Err(_) => return HttpResponse::InternalServerError().finish(),
+async fn get_agents(state: State<AppState>) -> impl IntoResponse {
+    let agents = state.agents.lock().unwrap();
+    Json(agents.clone()).into_response()
+}
+
+async fn create_agents(
+    state: State<AppState>,
+    Json(payload): Json<CreateAgent>,
+) -> impl IntoResponse {
+    let mut agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
-    let ip = match request.peer_addr() {
-        Some(addr) => addr.ip().to_string(),
-        None => "".to_string(),
-    };
-    let uuid = Uuid::new_v4();
-    agents.push(AgentEntry {
-        uuid,
+
+    let agent = AgentEntry {
+        uuid: Uuid::new_v4(),
         status: AgentStatus::Online,
         tasks: Vec::new(),
         created_at: chrono::Utc::now().timestamp(),
         last_seen_at: chrono::Utc::now().timestamp(),
-        ip,
-        hostname: param_obj.hostname.clone(),
-        platform: param_obj.platform.clone(),
-    });
-    HttpResponse::Created().json(json!({"agent_uuid": uuid}))
+        ip: "".to_string(),
+        hostname: payload.hostname,
+        platform: payload.platform,
+    };
+    agents.push(agent.clone());
+    (StatusCode::CREATED, Json(agent)).into_response()
 }
 
-#[get("/agents")]
-async fn get_agents(data: web::Data<AppState>) -> impl Responder {
-    HttpResponse::Ok().json(data.agents_entries.lock().unwrap().to_vec())
+async fn delete_agents(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoResponse {
+    let mut agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    let index = agents.iter().position(|agent| agent.uuid == id);
+    match index {
+        Some(index) => {
+            agents.remove(index);
+            StatusCode::OK.into_response()
+        }
+        None => (
+            StatusCode::NOT_FOUND,
+            Json(json!({"error": "Agent not found"})),
+        )
+            .into_response(),
+    }
 }
 
-pub fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(create_agent);
-    cfg.service(get_agents);
+pub fn get_router(state: AppState) -> Router {
+    Router::new()
+        .route("/", get(get_agents))
+        .with_state(state.clone())
+        .route("/register", post(create_agents))
+        .with_state(state.clone())
+        .route("/:id", delete(delete_agents))
+        .with_state(state.clone())
 }

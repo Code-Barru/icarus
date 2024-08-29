@@ -1,31 +1,37 @@
-use actix_web::middleware::Logger;
-use actix_web::{web, App, HttpServer};
-use env_logger::Env;
-use std::sync::Mutex;
-mod tasks;
-use agents::models::AgentEntry;
+use std::sync::{Arc, Mutex};
 
+use axum::Router;
 mod agents;
+use agents::models::AgentEntry;
+use tokio::net::TcpListener;
 
+mod tasks;
+
+#[derive(Clone)]
 struct AppState {
-    agents_entries: Mutex<Vec<AgentEntry>>,
+    agents: Arc<Mutex<Vec<AgentEntry>>>,
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let app_data = web::Data::new(AppState {
-        agents_entries: Mutex::new(Vec::new()),
-    });
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
+#[tokio::main]
+async fn main() {
+    let state = AppState {
+        agents: Arc::new(Mutex::new(Vec::new())),
+    };
 
-    HttpServer::new(move || {
-        App::new()
-            .app_data(app_data.clone())
-            .configure(tasks::services::config)
-            .configure(agents::services::config)
-            .wrap(Logger::new("%a \"%r\" - %s"))
-    })
-    .bind(("0.0.0.0", 8080))?
-    .run()
-    .await
+    let app = Router::new()
+        .nest("/agents", agents::services::get_router(state.clone()))
+        .nest("/tasks", tasks::services::get_router(state.clone()));
+
+    let listener = match TcpListener::bind("0.0.0.0:8080").await {
+        Ok(listener) => listener,
+        Err(e) => {
+            eprintln!("Failed to bind to port 8080: {}", e);
+            return;
+        }
+    };
+
+    match axum::serve(listener, app).await {
+        Ok(_) => println!("Server exited successfully"),
+        Err(e) => eprintln!("Server exited with an error: {}", e),
+    };
 }

@@ -1,98 +1,88 @@
 use super::models::{CreateTask, TaskEntry, TaskStatus, UpdateTask};
-use crate::{agents::models::AgentEntry, AppState};
-use actix_web::{get, post, put, web, HttpResponse, Responder};
+use crate::AppState;
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, post, put},
+    Json, Router,
+};
 use serde_json::json;
 use uuid::Uuid;
 
-#[get("/tasks")]
-async fn get_tasks(data: web::Data<AppState>) -> impl Responder {
-    let mut all_tasks = Vec::new();
-    let agents = match data.agents_entries.lock() {
-        Ok(t) => t,
-        Err(_) => return HttpResponse::InternalServerError().finish(),
-    };
-    for agent in agents.iter() {
-        all_tasks.extend(agent.tasks.iter().cloned());
-    }
-    HttpResponse::Ok().json(all_tasks)
+async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
+    let agents = state.agents.lock().unwrap();
+    let tasks: Vec<TaskEntry> = agents
+        .iter()
+        .flat_map(|agent| agent.tasks.clone())
+        .collect();
+    Json(tasks).into_response()
 }
 
-#[get("/tasks/{taskUUID}")]
-async fn get_task(data: web::Data<AppState>, path: web::Path<Uuid>) -> impl Responder {
-    let agents = match data.agents_entries.lock() {
-        Ok(t) => t,
-        Err(_) => return HttpResponse::InternalServerError().finish(),
+async fn create_tasks(
+    state: State<AppState>,
+    Json(payload): Json<CreateTask>,
+) -> impl IntoResponse {
+    let mut agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
-    for agent in agents.iter() {
-        for task in agent.tasks.iter() {
-            if task.uuid == *path {
-                return HttpResponse::Ok().json(task);
-            }
+    let agent = match agents.iter_mut().find(|agent| agent.uuid == payload.agent) {
+        Some(agent) => agent,
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(json!({"error": "Agent not found"})),
+            )
+                .into_response()
         }
-    }
-    HttpResponse::NotFound().finish()
-}
-
-#[post("/tasks")]
-async fn create_task(
-    data: web::Data<AppState>,
-    param_obj: web::Json<CreateTask>,
-) -> impl Responder {
-    let mut agents = match data.agents_entries.lock() {
-        Ok(t) => t,
-        Err(_) => return HttpResponse::InternalServerError().finish(),
     };
-    let agent: &mut AgentEntry = match agents.iter_mut().find(|a| a.uuid == param_obj.agent) {
-        Some(a) => a,
-        None => return HttpResponse::NotFound().finish(),
-    };
-
-    let uuid = Uuid::new_v4();
-    agent.tasks.push(TaskEntry {
-        uuid,
-        task_type: param_obj.task_type.clone(),
-        agent: param_obj.agent.clone(),
+    let task = TaskEntry {
+        uuid: Uuid::new_v4(),
         status: TaskStatus::Pending,
-        response: "".to_string(),
         emitted_at: chrono::Utc::now().timestamp(),
+        task_type: payload.task_type,
+        agent: agent.uuid,
+        response: "".to_string(),
         completed_at: 0,
-    });
-    HttpResponse::Created().json(json!({"task_uuid": uuid}))
+    };
+    agent.tasks.push(task.clone());
+    (StatusCode::CREATED, Json(task)).into_response()
 }
 
-#[put("/tasks/{taskUUID}")]
-async fn update_task(
-    data: web::Data<AppState>,
-    path: web::Path<Uuid>,
-    param_obj: web::Json<UpdateTask>,
-) -> impl Responder {
-    let mut agents = match data.agents_entries.lock() {
-        Ok(t) => t,
-        Err(_) => return HttpResponse::InternalServerError().finish(),
+async fn update_tasks(
+    Path(id): Path<Uuid>,
+    state: State<AppState>,
+    Json(payload): Json<UpdateTask>,
+) -> impl IntoResponse {
+    let mut agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
-    let agent: &mut AgentEntry = match agents.iter_mut().find(|a| a.uuid == param_obj.agent) {
-        Some(a) => a,
-        None => return HttpResponse::NotFound().finish(),
-    };
-    let task: Option<&mut TaskEntry> = agent.tasks.iter_mut().find(|t| t.uuid == *path);
-    if let None = task {
-        return HttpResponse::NotFound().finish();
-    }
-    match task {
-        Some(t) => {
-            t.status = param_obj.status.clone();
-            t.response = param_obj.response.clone();
-            if t.status == TaskStatus::Completed || t.status == TaskStatus::Failed {
-                t.completed_at = chrono::Utc::now().timestamp();
-            }
-            HttpResponse::Ok().finish()
+    let agent = match agents.iter_mut().find(|agent| agent.uuid == payload.agent) {
+        Some(agent) => agent,
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(json!({"error": "Agent not found"})),
+            )
+                .into_response()
         }
-        None => HttpResponse::NotFound().finish(),
-    }
+    };
+
+    let task = agent.tasks.iter_mut().find(|task| task.uuid == id).unwrap();
+    task.status = payload.status;
+    task.response = payload.response.clone();
+    task.completed_at = chrono::Utc::now().timestamp();
+    Json(task.clone()).into_response()
 }
 
-pub fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(get_tasks);
-    cfg.service(create_task);
-    cfg.service(update_task);
+pub fn get_router(state: AppState) -> Router {
+    Router::new()
+        .route("/", get(get_tasks))
+        .with_state(state.clone())
+        .route("/", post(create_tasks))
+        .with_state(state.clone())
+        .route("/:id", put(update_tasks))
+        .with_state(state.clone())
 }
