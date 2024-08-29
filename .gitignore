@@ -1,0 +1,6 @@
+ressources/
+target/
+node_modules/
+dist/
+.env
+.vscode/
