@@ -16,6 +16,27 @@ async fn get_agents(state: State<AppState>) -> impl IntoResponse {
     Json(agents.clone()).into_response()
 }
 
+async fn get_my_tasks(state: State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
+    let mut agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    let agent = match agents.iter_mut().find(|agent| agent.uuid == id) {
+        Some(agent) => {
+            agent.last_seen_at = chrono::Utc::now().timestamp();
+            agent.clone()
+        }
+        None => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(json!({"error": "Agent not found"})),
+            )
+                .into_response()
+        }
+    };
+    (StatusCode::OK, Json(agent.tasks.clone())).into_response()
+}
+
 async fn create_agents(
     state: State<AppState>,
     Json(payload): Json<CreateAgent>,
@@ -65,5 +86,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/register", post(create_agents))
         .with_state(state.clone())
         .route("/:id", delete(delete_agents))
+        .with_state(state.clone())
+        .route("/:id/my_tasks", get(get_my_tasks))
         .with_state(state.clone())
 }

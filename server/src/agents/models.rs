@@ -26,7 +26,7 @@ pub struct CreateAgent {
 pub struct UpdateAgent {}
 
 #[allow(dead_code)]
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, PartialEq)]
 pub enum AgentStatus {
     Online,
     Offline,
