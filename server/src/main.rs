@@ -3,14 +3,16 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use axum::Router;
 mod agents;
+mod tasks;
+mod utils;
+mod web;
+
 use agents::models::AgentEntry;
+use axum::Router;
 use tokio::net::TcpListener;
 use tower_http::trace::{self, TraceLayer};
 use tracing::Level;
-mod tasks;
-mod utils;
 
 static AGENTS_HEALTH_CHECK_INTERVAL: u64 = 1;
 static AGENTS_HEALTH_CHECK_TIMEOUT: u64 = 10;
@@ -34,8 +36,9 @@ async fn main() {
 
     // setup router & services
     let app = Router::new()
-        .nest("/agents", agents::services::get_router(state.clone()))
-        .nest("/tasks", tasks::services::get_router(state.clone()))
+        .nest("/", web::services::get_router())
+        .nest("/c2/agents", agents::services::get_router(state.clone()))
+        .nest("/c2/tasks", tasks::services::get_router(state.clone()))
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))

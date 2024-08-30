@@ -23,7 +23,7 @@ pub async fn task_handler(
         response: Some("Task completed successfully".to_string()),
     };
 
-    let res = http
+    let _ = http
         .put(format!("{}/tasks/{}", crate::REMOTE_SERVER, task.uuid))
         .json(&update_task)
         .send()
