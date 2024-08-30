@@ -43,7 +43,8 @@ async fn create_tasks(
         emitted_at: chrono::Utc::now().timestamp(),
         task_type: payload.task_type,
         agent: agent.uuid,
-        response: "".to_string(),
+        response: None,
+        input: payload.input,
         completed_at: 0,
     };
     agent.tasks.push(task.clone());
@@ -72,6 +73,7 @@ async fn update_tasks(
 
     let task = agent.tasks.iter_mut().find(|task| task.uuid == id).unwrap();
     task.status = payload.status;
+
     task.response = payload.response.clone();
     task.completed_at = chrono::Utc::now().timestamp();
     Json(task.clone()).into_response()

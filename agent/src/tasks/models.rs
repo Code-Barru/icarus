@@ -13,18 +13,10 @@ pub struct TaskEntry {
     pub completed_at: i64,
 }
 
-#[derive(Deserialize, Clone)]
-pub struct CreateTask {
-    pub agent: Uuid,
-    pub task_type: TaskType,
-    pub input: Option<String>,
-}
-
-#[derive(Deserialize, Clone)]
-pub struct UpdateTask {
-    pub status: TaskStatus,
-    pub agent: Uuid,
-    pub response: Option<String>,
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub enum TaskType {
+    ShellCommand,
+    PowerShellCommand,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
@@ -35,8 +27,9 @@ pub enum TaskStatus {
     Failed,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub enum TaskType {
-    ShellCommand,
-    PowerShellCommand,
+#[derive(Serialize, Clone, Debug)]
+pub struct UpdateTask {
+    pub status: TaskStatus,
+    pub agent: Uuid,
+    pub response: Option<String>,
 }
