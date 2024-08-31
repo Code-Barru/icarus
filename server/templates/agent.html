@@ -1,0 +1,18 @@
+{% extends "layout.html" %}{% block body %}
+<h1>{{ agent.hostname }} - {{ agent.ip }}</h1>
+
+<h2>Tasks</h2>
+{% for task in agent.tasks %}
+<div class="">
+  <h4>{{ task.task_type }}</h4>
+  <p>{{ task.status }}</p>
+
+  <button
+    hx-get="/tasks/{{ task.uuid }}"
+    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+  >
+    get task
+  </button>
+</div>
+
+{% endfor %} {% endblock %}

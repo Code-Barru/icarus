@@ -3,7 +3,7 @@ mod tasks;
 use std::sync::{Arc, Mutex};
 
 static TASKS_FETCH_INTERVAL: u64 = 3;
-static REMOTE_SERVER: &str = "http://localhost:8080/c2";
+static REMOTE_SERVER: &str = "http://localhost:1337/c2";
 
 #[derive(Clone, Debug)]
 pub struct State {

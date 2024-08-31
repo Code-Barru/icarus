@@ -18,19 +18,25 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
         {
             agent.status = agents::models::AgentStatus::Online;
             println!("Agent {} just came from the dead!", agent.uuid);
-            continue;
-        }
-
-        if agent.status == agents::models::AgentStatus::Offline {
-            continue;
         }
 
         if agent.last_seen_at + (crate::AGENTS_HEALTH_CHECK_TIMEOUT as i64)
             < chrono::Utc::now().timestamp()
+            && agent.status == agents::models::AgentStatus::Online
         {
             agent.status = agents::models::AgentStatus::Offline;
             println!("Agent {} just went offline!", agent.uuid);
+        }
+
+        let seconds_since_last_seen = chrono::Utc::now().timestamp() - agent.last_seen_at;
+        if seconds_since_last_seen < crate::AGENTS_HEALTH_CHECK_TIMEOUT as i64 {
+            agent.last_seen_at_str = format!("now");
             continue;
         }
+        agent.last_seen_at_str = format!("{} seconds ago", seconds_since_last_seen);
     }
+}
+
+pub async fn get_favicon() -> Vec<u8> {
+    include_bytes!("../templates/assets/favicon.ico").to_vec()
 }

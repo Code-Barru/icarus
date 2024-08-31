@@ -68,6 +68,7 @@ async fn create_agents(
         tasks: Vec::new(),
         created_at: chrono::Utc::now().timestamp(),
         last_seen_at: chrono::Utc::now().timestamp(),
+        last_seen_at_str: "now".to_string(),
         ip: addr.ip().to_string(),
         hostname: payload.hostname,
         platform: payload.platform,

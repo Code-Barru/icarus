@@ -4,6 +4,8 @@ use axum::{
     response::{Html, IntoResponse, Response},
 };
 
+use crate::agents::models::AgentEntry;
+
 pub struct HtmlTemplate<T>(pub T);
 
 impl<T> IntoResponse for HtmlTemplate<T>
@@ -23,24 +25,31 @@ where
 
 #[derive(Template)]
 #[template(path = "home.html")]
-pub struct HomeTemplate {
-    pub title: String,
-    pub welcome_text: String,
+pub struct HomeTemplate {}
+
+#[derive(Template)]
+#[template(path = "agents.html")]
+pub struct AgentsTemplate {
+    pub agents: Vec<AgentEntry>,
 }
+#[derive(Template)]
+#[template(path = "agent.html")]
+pub struct SingleAgentTemplate {
+    pub agent: AgentEntry,
+}
+
+#[derive(Template)]
+#[template(path = "tasks.html")]
+pub struct TasksTemplate {}
+
+#[derive(Template)]
+#[template(path = "task.html")]
+pub struct SingleTaskTemplate {}
+
+#[derive(Template)]
+#[template(path = "payloads.html")]
+pub struct PayloadsTemplate {}
 
 #[derive(Template)]
 #[template(path = "about.html")]
-pub struct AboutTemplate {
-    pub title: String,
-    pub about_text: String,
-}
-#[derive(Template)]
-#[template(path = "content.html")]
-pub struct ContentTemplate {
-    pub title: String,
-    pub entries: Vec<String>,
-}
-
-#[derive(Template)]
-#[template(path = "layout.html")]
-pub struct LayoutTemplate {}
+pub struct AboutTemplate {}

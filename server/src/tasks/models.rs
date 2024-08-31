@@ -35,8 +35,27 @@ pub enum TaskStatus {
     Failed,
 }
 
+impl std::fmt::Display for TaskStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            TaskStatus::Pending => write!(f, "Pending"),
+            TaskStatus::InProgress => write!(f, "In Progress"),
+            TaskStatus::Completed => write!(f, "Completed"),
+            TaskStatus::Failed => write!(f, "Failed"),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum TaskType {
     ShellCommand,
     PowerShellCommand,
+}
+impl std::fmt::Display for TaskType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            TaskType::ShellCommand => write!(f, "Shell Command"),
+            TaskType::PowerShellCommand => write!(f, "PowerShell Command"),
+        }
+    }
 }

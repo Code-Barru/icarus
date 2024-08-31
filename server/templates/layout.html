@@ -2,15 +2,18 @@
 <html>
   <head>
     <title>{% block title %}Icarus{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://unpkg.com/htmx.org@2.0.2"
+      integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
+      crossorigin="anonymous"
+    ></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
-  <body>
-    <nav>
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/content">Content</a></li>
-        <li><a href="/about">About</a></li>
-      </ul>
-    </nav>
-    {% block body %}{% endblock %}
+  <body class="bg-slate-200">
+    <div class="flex flex-row h-screen">
+      {% include "sidebar.html" %}
+      <div class="flex-1">{% block body %}{% endblock %}</div>
+    </div>
   </body>
 </html>

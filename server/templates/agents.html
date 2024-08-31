@@ -1,0 +1,78 @@
+{% extends "layout.html" %}{% block body %}
+
+<div class="h-20 bg-slate-50 border-b border-slate-400 py-5 px-4">
+  <div class="flex flex-row">
+    <img src="/assets/agent.svg" class="mr-2" width="35" />
+    <h1 class="text-2xl font-bold text-slate-700">Agents</h1>
+  </div>
+</div>
+
+<div class="px-2 py-2">
+  {% if agents.len() == 0 %}
+  <h1 class="text-2x font-bold text-slate-700">No agents found</h1>
+  {% else %}
+
+
+  <div class="flex flex-row py-4">
+    <div class="flex-1 pr-4 pl-6"">
+      <h1 class="text-lg font-bold uppercase text-late-700">Agent</h1>
+    </div>
+    <div class="flex-1 pl-6"">
+      <h1 class="text-lg font-bold uppercase text-late-700">System</h1>
+    </div>
+    <div class="flex-1"">
+      <h1 class="text-lg font-bold uppercase text-late-700">Network</h1>
+    </div>
+  </div>
+  <div
+    class="flex flex-col border-t border-l border-r border-slate-400 rounded"
+  >
+    {% for agent in agents %} {% let rounded %} {% if loop.first %} {% set
+    rounded = "rounded-t" %} {% else if loop.last %} {% set rounded ="rounded-b"
+    %} {% else %} {% set rounded = "" %} {% endif %}
+    <a
+      href="/agents/{{agent.uuid}}"
+      class="bg-slate-50 border-b border-slate-400 hover:bg-slate-100 font-bold py-4 px-4 {{ rounded }}"
+    >
+      <div class="flex flex-1 flex-row">
+        <div>
+          {% if agent.status.to_str() == "Online" %}
+          <img
+            src="/assets/wifi-on.svg"
+            class="mx-auto fill-green-500"
+            width="40"
+          />
+          {% else %}
+          <img src="/assets/wifi-off.svg" class="mx-auto" width="40" />
+          {% endif %}
+        </div>
+        <div class="flex flex-1 flex-col mx-4 pr-4 border-r border-slate-700">
+          <h2 class="text-lg text-slate-700">
+            {{ loop.index }} - {{ agent.hostname }}
+          </h2>
+          <p class="text-sm text-gray-400">
+            Last checked in {{ agent.last_seen_at_str }}.
+          </p>
+        </div>
+        <div class="flex flex-1 flex-col pr-4 border-r border-slate-700">
+          <p class="text-lg text-slate-700">{{ agent.platform }}</p>
+          <div class="flex flex-row">
+            <img src="/assets/fingerprint.svg" class="mr-2" width="20" />
+            <h2 class="text-sm text-gray-400">{{ agent.uuid }}</h2>
+          </div>
+        </div>
+        <div class="flex flex-1 flex-col mx-4 pr-4">
+          <p class="text-lg text-slate-700">IP Adress v4</p>
+          <p class="text-sm text-gray-400">{{ agent.ip }}</p>
+        </div>
+        <div class="my-auto">
+          <img src="/assets/chevron-right.svg" class="mx-auto" width="20" />
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
