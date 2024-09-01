@@ -6,11 +6,19 @@ A Command and Control server and his agent written in Rust🦀!
 
 ## Features
 
-- Web Interface 💻
-- Task queuing 📃
-- ReverShell in web app 👾
-- Upload payload
-- Nuke the client ☢
+### TODO
+
+- [ ] Upload payload
+- [ ] ReverShell in web app 👾
+- [ ] Nuke the client ☢
+
+### In Progress
+
+- [ ] Web Interface 💻
+
+### Done
+
+- [x] Task queuing 📃
 
 ## Prerequisite
 
