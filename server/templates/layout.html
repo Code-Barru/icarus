@@ -13,7 +13,14 @@
   <body class="bg-slate-200">
     <div class="flex flex-row h-screen">
       {% include "sidebar.html" %}
-      <div class="flex-1">{% block body %}{% endblock %}</div>
+      
+      <div class="flex-1"><div class="h-20 bg-slate-50 border-b border-slate-400 py-5 px-4">
+        <div class="flex flex-row">
+          <img src="/assets/{% block headerImg %}agent.svg{% endblock %}" class="mr-2" width="35" />
+          <h1 class="text-2xl font-bold text-slate-700">{% block header %}ICARUS{% endblock %}</h1>
+        </div>
+      </div>
+      {% block body %}{% endblock %}</div>
     </div>
   </body>
 </html>

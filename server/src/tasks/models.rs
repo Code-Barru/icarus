@@ -6,6 +6,7 @@ pub struct TaskEntry {
     pub uuid: Uuid,
     pub task_type: TaskType,
     pub agent: Uuid,
+    pub agent_name: String,
     pub status: TaskStatus,
     pub response: Option<String>,
     pub input: Option<String>,
@@ -42,6 +43,17 @@ impl std::fmt::Display for TaskStatus {
             TaskStatus::InProgress => write!(f, "In Progress"),
             TaskStatus::Completed => write!(f, "Completed"),
             TaskStatus::Failed => write!(f, "Failed"),
+        }
+    }
+}
+
+impl TaskStatus {
+    pub fn to_str(&self) -> &str {
+        match self {
+            TaskStatus::Pending => "Pending",
+            TaskStatus::InProgress => "In Progress",
+            TaskStatus::Completed => "Completed",
+            TaskStatus::Failed => "Failed",
         }
     }
 }

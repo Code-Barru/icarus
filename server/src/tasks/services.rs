@@ -43,6 +43,7 @@ async fn create_tasks(
         emitted_at: chrono::Utc::now().timestamp(),
         task_type: payload.task_type,
         agent: agent.uuid,
+        agent_name: agent.hostname.clone(),
         response: None,
         input: payload.input,
         completed_at: 0,

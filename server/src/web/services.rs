@@ -44,7 +44,19 @@ async fn render_single_agent(Path(uuid): Path<Uuid>, state: State<AppState>) -> 
 }
 #[allow(unused_variables)]
 async fn render_tasks(_state: State<AppState>) -> impl IntoResponse {
-    let template = templates::TasksTemplate {};
+    let agents = match _state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+
+    let mut tasks = vec![];
+    for agent in agents.iter() {
+        tasks.extend(agent.tasks.clone());
+    }
+
+    let template = templates::TasksTemplate {
+        tasks: tasks.clone(),
+    };
     HtmlTemplate(template).into_response()
 }
 

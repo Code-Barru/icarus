@@ -40,7 +40,9 @@ pub struct SingleAgentTemplate {
 
 #[derive(Template)]
 #[template(path = "tasks.html")]
-pub struct TasksTemplate {}
+pub struct TasksTemplate {
+    pub tasks: Vec<crate::tasks::models::TaskEntry>,
+}
 
 #[derive(Template)]
 #[template(path = "task.html")]

@@ -30,10 +30,30 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
 
         let seconds_since_last_seen = chrono::Utc::now().timestamp() - agent.last_seen_at;
         if seconds_since_last_seen < crate::AGENTS_HEALTH_CHECK_TIMEOUT as i64 {
-            agent.last_seen_at_str = format!("now");
+            agent.last_seen_at_str = format!("Just checked in!");
             continue;
         }
-        agent.last_seen_at_str = format!("{} seconds ago", seconds_since_last_seen);
+        if seconds_since_last_seen < 60 {
+            agent.last_seen_at_str =
+                format!("Last checked in {} seconds ago.", seconds_since_last_seen);
+            continue;
+        } else if seconds_since_last_seen < 3600 {
+            let minutes = seconds_since_last_seen / 60;
+            agent.last_seen_at_str = format!(
+                "Last checked in {} {} ago.",
+                minutes,
+                (if minutes == 1 { "minute" } else { "minutes" })
+            );
+            continue;
+        } else if seconds_since_last_seen < 86400 {
+            let hours = seconds_since_last_seen / 3600;
+            agent.last_seen_at_str = format!(
+                "Last checked in {} {} ago.",
+                hours,
+                if hours == 1 { "hour" } else { "hours" }
+            );
+            continue;
+        }
     }
 }
 

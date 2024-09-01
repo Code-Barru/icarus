@@ -1,5 +1,7 @@
-{% extends "layout.html" %}{% block body %}
-<h1>{{ agent.hostname }} - {{ agent.ip }}</h1>
+{% extends "layout.html" %}
+{% block headerImg %}agent.svg{% endblock %}
+{% block header %} {{ agent.hostname }} {% endblock %}
+{% block body %}
 
 <h2>Tasks</h2>
 {% for task in agent.tasks %}

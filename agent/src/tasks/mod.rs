@@ -18,13 +18,13 @@ pub async fn task_handler(
     };
 
     let update_task = models::UpdateTask {
-        status: models::TaskStatus::Completed,
+        status: models::TaskStatus::Failed,
         agent: state.uuid,
         response: Some("Task completed successfully".to_string()),
     };
 
     let _ = http
-        .put(format!("{}/tasks/{}", crate::REMOTE_SERVER, task.uuid))
+        .put(format!("{}/tasks/{}", &state.remote_server, task.uuid))
         .json(&update_task)
         .send()
         .await;

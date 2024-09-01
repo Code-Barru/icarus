@@ -21,14 +21,13 @@ pub async fn register(state: &mut State) -> Result<(), Box<dyn std::error::Error
     };
 
     let request = http
-        .post(format!("{}/agents/register", crate::REMOTE_SERVER))
+        .post(format!("{}/agents/register", &state.remote_server))
         .json(&request)
         .send()
         .await?;
     let json = request.json::<super::models::RegisterResponse>().await?;
 
     state.uuid = json.uuid;
-    println!("Received uuid: \"{:?}\"", json.uuid);
     Ok(())
 }
 
@@ -41,8 +40,7 @@ pub async fn get_tasks(state: &mut State) -> Result<(), Box<dyn std::error::Erro
     let request = http
         .get(format!(
             "{}/agents/{}/my_tasks",
-            crate::REMOTE_SERVER,
-            state.uuid
+            &state.remote_server, state.uuid
         ))
         .send()
         .await?;

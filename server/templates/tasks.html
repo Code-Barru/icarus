@@ -1,9 +1,64 @@
-{% extends "layout.html" %}{% block body %}
-
-<div class="h-20 bg-slate-50 border-b border-slate-400 py-5 px-4">
-  <div class="flex flex-row">
-    <img src="/assets/task.svg" class="mr-2" width="35" />
-    <h1 class="text-2xl font-bold text-slate-700">Tasks</h1>
-  </div>
+{% extends "layout.html" %}
+{% block headerImg %}task.svg{% endblock %}
+{% block header %} Tasks {% endblock %}
+{% block body %}
+<div class="px-2 py-2">
+	{% if tasks.len() == 0 %}
+  <h1 class="text-2x font-bold text-slate-700">No tasks found</h1>
+  {% else %}
+	<div class="flex flex-row py-4">
+		<div class="flex-1 pr-4 pl-6"">
+			<h1 class="text-lg font-bold uppercase text-late-700">Task</h1>
+		</div>
+		<div class="flex-1"">
+			<h1 class="text-lg font-bold uppercase text-late-700">Agent</h1>
+		</div>
+	</div>
+	<div
+	class="flex flex-col border-t border-l border-r border-slate-400 rounded"
+	>
+		{% for task in tasks %} {% let rounded %} {% if loop.first %} {% set
+		rounded = "rounded-t" %} {% else if loop.last %} {% set rounded ="rounded-b"
+		%} {% else %} {% set rounded = "" %} {% endif %}
+		<a
+			href="/tasks/{{task.uuid}}"
+			class="bg-slate-50 border-b border-slate-400 hover:bg-slate-100 font-bold py-4 px-4 {{ rounded }}"
+		>
+			
+			<div class="flex flex-1 flex-row">
+				<div>
+					{% if task.status.to_str() == "Pending" %}
+						<p class="mx-auto text-gray-500 text-lg">•</p>
+					{% else if task.status.to_str() == "In Progress" %}
+						<p class="mx-auto text-blue-500 text-lg">•</p>
+					{% else if task.status.to_str() == "Completed" %}
+						<p class="mx-auto text-green-500 text-lg">•</p>
+					{% else if task.status.to_str() == "Failed" %}
+						<p class="mx-auto text-red-500 text-lg">•</p>
+					{% endif %}
+				</div>
+				<div class="flex flex-1 flex-col mx-4 pr-4 border-r border-slate-700">
+					<h2 class="text-lg text-slate-700">
+						{{ loop.index }} - {{ task.task_type }}
+					</h2>
+					<p class="text-sm text-gray-400">
+						{{ task.status }}
+					</p>
+				</div>
+				<div class="flex flex-1 flex-col pr-4">
+					<p class="text-lg text-slate-700">{{ task.agent_name }}</p>
+					<div class="flex flex-row">
+						<img src="/assets/fingerprint.svg" class="mr-2" width="20" />
+						<h2 class="text-sm text-gray-400">{{ task.agent }}</h2>
+					</div>
+				</div>
+				<div class="my-auto">
+					<img src="/assets/chevron-right.svg" class="mx-auto" width="20" />
+				</div>
+			</div>
+		</a>
+		{% endfor %}
+	</div>
+	{% endif %}
 </div>
 {% endblock %}
