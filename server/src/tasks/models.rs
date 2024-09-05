@@ -8,8 +8,8 @@ pub struct TaskEntry {
     pub agent: Uuid,
     pub agent_name: String,
     pub status: TaskStatus,
-    pub response: Option<String>,
-    pub input: Option<String>,
+    pub response: String,
+    pub input: String,
     pub emitted_at: i64,
     pub completed_at: i64,
 }
