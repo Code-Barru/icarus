@@ -4,6 +4,9 @@
 
 A Command and Control server and his agent written in Rust🦀!
 
+> [!warning]
+> 🚧This project is still in development!🚧
+
 ## Features
 
 ### TODO
