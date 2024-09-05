@@ -8,63 +8,62 @@
   {% if agents.len() == 0 %}
   <h1 class="text-2x font-bold text-slate-700">No agents found</h1>
   {% else %}
-
-
-  <div class="flex flex-row py-4">
-    <div class="flex-1 pr-4 pl-6"">
-      <h1 class="text-lg font-bold uppercase text-late-700">Agent</h1>
-    </div>
-    <div class="flex-1 pl-6"">
-      <h1 class="text-lg font-bold uppercase text-late-700">System</h1>
-    </div>
-    <div class="flex-1"">
-      <h1 class="text-lg font-bold uppercase text-late-700">Network</h1>
-    </div>
-  </div>
-  <div
-    class="flex flex-col border-t border-l border-r border-slate-400 rounded"
-  >
-    {% for agent in agents %} {% let rounded %} {% if loop.first %} {% set
-    rounded = "rounded-t" %} {% else if loop.last %} {% set rounded ="rounded-b"
-    %} {% else %} {% set rounded = "" %} {% endif %}
-    <a
-      href="/agents/{{agent.uuid}}"
-      class="bg-slate-50 border-b border-slate-400 hover:bg-slate-100 font-bold py-4 px-4 {{ rounded }}"
-    >
-      <div class="flex flex-1 flex-row">
-        <div>
-          {% if agent.status.to_str() == "Online" %}
-          <p class="mx-auto text-green-500 text-lg">•</p>
-          {% else %}
-          <p class="mx-auto text-red-500 text-lg">•</p>
-          {% endif %}
-        </div>
-        <div class="flex flex-1 flex-col mx-4 pr-4 border-r border-slate-700">
-          <h2 class="text-lg text-slate-700">
-            {{ loop.index }} - {{ agent.hostname }}
-          </h2>
-          <p class="text-sm text-gray-400">
-            {{ agent.last_seen_at_str }}
-          </p>
-        </div>
-        <div class="flex flex-1 flex-col pr-4 border-r border-slate-700">
-          <p class="text-lg text-slate-700">{{ agent.platform }}</p>
-          <div class="flex flex-row">
-            <img src="/assets/fingerprint.svg" class="mr-2" width="20" />
-            <h2 class="text-sm text-gray-400">{{ agent.uuid }}</h2>
-          </div>
-        </div>
-        <div class="flex flex-1 flex-col mx-4 pr-4">
-          <p class="text-lg text-slate-700">IP Adress v4</p>
-          <p class="text-sm text-gray-400">{{ agent.ip }}</p>
-        </div>
-        <div class="my-auto">
-          <img src="/assets/chevron-right.svg" class="mx-auto" width="20" />
-        </div>
-      </div>
-    </a>
-    {% endfor %}
-  </div>
+  <table class="min-w-full divide-y divide-gray-200 table-fixed ">
+    <thead class="bg-transparent">
+      <tr>
+        <th scope="col" class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider">
+          Agent
+        </th>
+        <th scope="col" class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider">
+          System
+        </th>
+        <th scope="col" class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider">
+          Network
+        </th>
+      </tr>
+    </thead>
+    <tbody class="bg-white hover:bg-slate-100 divide-y divide-gray-200 border border-slate-700 rounded">
+      {% for agent in agents %}
+      <tr>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <a href="/agents/{{ agent.uuid }}">
+            <div class="flex flex-row">
+              {% if agent.status.to_str() == "Online" %}
+              <p class="text-green-500 text-lg mr-4">•</p>
+              {% else %}
+              <p class="text-red-500 text-lg mr-4">•</p>
+              {% endif %}
+              <div class="flex flex-1 flex-col">
+                <h2 class="text-lg font-bold text-slate-700">
+                  {{ loop.index }} - {{ agent.hostname }}
+                </h2>
+                <p class="text-sm text-gray-400">
+                  {{ agent.last_seen_at_str }}
+                </p>
+              </div>
+            </div>
+          </a>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <a href="/agents/{{ agent.uuid }}">
+            <p class="text-lg font-bold text-slate-700">{{ agent.platform }}</p>
+            <div class="flex flex-row">
+              <img src="/assets/fingerprint.svg" class="mr-2" width="20" />
+              <h2 class="text-sm text-gray-400">{{ agent.uuid }}</h2>
+            </div>
+          </a>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <a href="/agents/{{ agent.uuid }}">
+            <p class="text-lg font-bold text-slate-700">IP Adress v4</p>
+            <p class="text-sm text-gray-400">{{ agent.ip }}</p>
+          </a>
+        </td>   
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
   {% endif %}
 </div>
 
