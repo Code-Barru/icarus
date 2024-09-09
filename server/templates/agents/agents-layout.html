@@ -1,0 +1,46 @@
+{% extends "base-layout.html" %} {% block headerImg %}agent.svg{% endblock %} {%
+block header %} {{ agent.hostname }} {% endblock %} {% block body %}
+
+<div>
+  <ul class="list-none mx-2 mt-4 py-1">
+    <li class="inline">
+      <a
+        class="py-2 px-2 {% block agentNavBg %}bg-transparent{% endblock %} text-lg font-semibold"
+        href="/agents/{{agent.uuid}}"
+        >Agent</a
+      >
+    </li>
+    <li class="inline">
+      <a
+        class="py-2 px-2 {% block explorerNavBg %}bg-transparent{% endblock %} text-lg font-semibold"
+        href="/agents/{{agent.uuid}}/file-explorer"
+        >Explorer</a
+      >
+    </li>
+    <li class="inline">
+      <a
+        class="py-2 px-2 {% block tasksNavBg %}bg-transparent{% endblock %} text-lg font-semibold"
+        href="/agents/{{agent.uuid}}/tasks"
+        >Tasks</a
+      >
+    </li>
+    <li class="inline">
+      <a
+        class="py-2 px-2 {% block payloadsNavBg %}bg-transparent{% endblock %} text-lg font-semibold"
+        href="/agents/{{agent.uuid}}/payloads"
+        >Payloads</a
+      >
+    </li>
+    <li class="inline">
+      <a
+        class="py-2 px-2 {% block settingsNavBg %}bg-transparent{% endblock %} text-lg font-semibold"
+        href="/agents/{{agent.uuid}}/settings"
+        >Settings</a
+      >
+    </li>
+  </ul>
+</div>
+<div class="bg-slate-50 mx-2 mb-4 z-10 h-fit">
+  {% block content %} {% endblock %}
+</div>
+{% endblock %}

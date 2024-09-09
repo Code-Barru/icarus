@@ -1,23 +1,29 @@
-{% extends "layout.html" %}
-{% block headerImg %}agent.svg{% endblock %}
-{% block header %} Agents {% endblock %}
-
-{% block body %}
+{% extends "base-layout.html" %} {% block headerImg %}agent.svg{% endblock %} {%
+block header %} Agents {% endblock %} {% block body %}
 
 <div class="px-2 mx-2 py-2">
   {% if agents.len() == 0 %}
   <h1 class="text-2x font-bold text-slate-700">No agents found</h1>
   {% else %}
-  <table class="min-w-full divide-y divide-gray-200 table-fixed ">
+  <table class="min-w-full divide-y divide-gray-200 table-fixed">
     <thead class="bg-transparent">
       <tr>
-        <th scope="col" class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider">
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider"
+        >
           Agent
         </th>
-        <th scope="col" class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider">
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider"
+        >
           System
         </th>
-        <th scope="col" class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider">
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider"
+        >
           Network
         </th>
       </tr>
@@ -58,12 +64,12 @@
             <p class="text-lg font-bold text-slate-700">IP Adress v4</p>
             <p class="text-sm text-gray-400">{{ agent.ip }}</p>
           </a>
-        </td>   
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  
+
   {% endif %}
 </div>
 

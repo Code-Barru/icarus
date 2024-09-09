@@ -42,6 +42,84 @@ async fn render_single_agent(Path(uuid): Path<Uuid>, state: State<AppState>) -> 
     };
     HtmlTemplate(template).into_response()
 }
+
+async fn render_agent_tasks(Path(uuid): Path<Uuid>, state: State<AppState>) -> impl IntoResponse {
+    let agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+
+    let agent = match agents.iter().find(|agent| agent.uuid == uuid) {
+        Some(agent) => agent,
+        None => return StatusCode::NOT_FOUND.into_response(),
+    };
+
+    let template = templates::AgentTasksTemplate {
+        agent: agent.clone(),
+    };
+    HtmlTemplate(template).into_response()
+}
+
+async fn render_agent_payloads(
+    Path(uuid): Path<Uuid>,
+    state: State<AppState>,
+) -> impl IntoResponse {
+    let agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+
+    let agent = match agents.iter().find(|agent| agent.uuid == uuid) {
+        Some(agent) => agent,
+        None => return StatusCode::NOT_FOUND.into_response(),
+    };
+
+    let template = templates::AgentPayloadsTemplate {
+        agent: agent.clone(),
+    };
+    HtmlTemplate(template).into_response()
+}
+
+async fn render_agent_settings(
+    Path(uuid): Path<Uuid>,
+    state: State<AppState>,
+) -> impl IntoResponse {
+    let agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+
+    let agent = match agents.iter().find(|agent| agent.uuid == uuid) {
+        Some(agent) => agent,
+        None => return StatusCode::NOT_FOUND.into_response(),
+    };
+
+    let template = templates::AgentSettingsTemplate {
+        agent: agent.clone(),
+    };
+    HtmlTemplate(template).into_response()
+}
+
+async fn render_agent_explorer(
+    Path(uuid): Path<Uuid>,
+    state: State<AppState>,
+) -> impl IntoResponse {
+    let agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+
+    let agent = match agents.iter().find(|agent| agent.uuid == uuid) {
+        Some(agent) => agent,
+        None => return StatusCode::NOT_FOUND.into_response(),
+    };
+
+    let template = templates::AgentExplorerTemplate {
+        agent: agent.clone(),
+    };
+    HtmlTemplate(template).into_response()
+}
+
 #[allow(unused_variables)]
 async fn render_tasks(_state: State<AppState>) -> impl IntoResponse {
     let agents = match _state.agents.lock() {
@@ -82,6 +160,14 @@ pub fn get_router(state: AppState) -> Router {
         .route("/agents", get(render_agents))
         .with_state(state.clone())
         .route("/agents/:uuid", get(render_single_agent))
+        .with_state(state.clone())
+        .route("/agents/:uuid/tasks", get(render_agent_tasks))
+        .with_state(state.clone())
+        .route("/agents/:uuid/payloads", get(render_agent_payloads))
+        .with_state(state.clone())
+        .route("/agents/:uuid/settings", get(render_agent_settings))
+        .with_state(state.clone())
+        .route("/agents/:uuid/file-explorer", get(render_agent_explorer))
         .with_state(state.clone())
         .route("/tasks", get(render_tasks))
         .with_state(state.clone())

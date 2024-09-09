@@ -33,8 +33,32 @@ pub struct AgentsTemplate {
     pub agents: Vec<AgentEntry>,
 }
 #[derive(Template)]
-#[template(path = "agent.html")]
+#[template(path = "agents/index.html")]
 pub struct SingleAgentTemplate {
+    pub agent: AgentEntry,
+}
+
+#[derive(Template)]
+#[template(path = "agents/explorer.html")]
+pub struct AgentExplorerTemplate {
+    pub agent: AgentEntry,
+}
+
+#[derive(Template)]
+#[template(path = "agents/tasks.html")]
+pub struct AgentTasksTemplate {
+    pub agent: AgentEntry,
+}
+
+#[derive(Template)]
+#[template(path = "agents/payloads.html")]
+pub struct AgentPayloadsTemplate {
+    pub agent: AgentEntry,
+}
+
+#[derive(Template)]
+#[template(path = "agents/settings.html")]
+pub struct AgentSettingsTemplate {
     pub agent: AgentEntry,
 }
 
@@ -45,7 +69,7 @@ pub struct TasksTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "task.html")]
+#[template(path = "tasks/index.html")]
 pub struct SingleTaskTemplate {}
 
 #[derive(Template)]

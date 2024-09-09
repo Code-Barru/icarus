@@ -1,0 +1,97 @@
+{% extends "agents-layout.html" %} {% block tasksNavBg %}bg-slate-50{% endblock
+  %} {% block content %}
+
+<div class="flex">
+  <div class="overflow-x-auto min-w-full  mx-2 px-2 py-2">
+    <div class="flex flex-row justify-center">
+      <button
+        class="bg-transparent hover:bg-slate-400 hover:text-slate-700 py-2 px-4 border min-w-full text-slate-500 font-semibold border-slate-500 hover:border-transparent rounded"
+        hx-post="http://localhost:1337/c2/tasks"
+        hx-ext="json-enc"
+        hx-swap="none"
+        hx-vals='js:{
+              "agent": "{{agent.uuid}}",
+              "task_type": "ShellCommand"
+          }'
+      >
+        +
+      </button>
+    </div>
+    <table class="table-fixed overflow-y-scroll min-w-full max-h-full divide-y divide-gray-200">
+      <thead class="bg-transparent">
+        <tr>
+          <th
+            scope="col"
+            class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider"
+          >
+            Task
+          </th>
+          <th
+            scope="col"
+            class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider"
+          >
+            Command
+          </th>
+          <th
+            scope="col"
+            class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider"
+          >
+            Status
+          </th>
+          <th
+            scope="col"
+            class="px-6 py-3 text-left text-lg text-slate-700 uppercase tracking-wider"
+          >
+            Output
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        {% for task in agent.tasks %}
+        <tr class="hover:bg-slate-100">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <a href="/tasks/{{task.uuid}}">
+              <div class="flex flex-col">
+                <h2 class="text-lg font-bold text-slate-700">
+                  {{ task.task_type }}
+                </h2>
+                <div class="flex flex-row">
+                  <img
+                    src="/assets/fingerprint.svg"
+                    width="20"
+                    alt="fingerprint"
+                  />
+                  <p class="text-sm text-gray-400">{{ task.uuid }}</p>
+                </div>
+              </div>
+            </a>
+          </td>
+          <td class="px-6 py-2 whitespace-nowrap">
+            <a href="/tasks/{{task.uuid}}">
+              <p class="text-lg font-bold text-slate-700">{{ task.input }}</p>
+            </a>
+          </td>
+          {% let status_color %} {% if task.status.to_str() == "Pending" %} {%
+          set status_color = "gray" %} {% else if task.status.to_str() == "In
+          Progress" %} {% set status_color = "blue" %} {% else if
+          task.status.to_str() == "Completed" %} {% set status_color = "green"
+          %} {% else if task.status.to_str() == "Failed" %} {% set status_color
+          = "red" %} {% else %} {% set status_color = "gray" %} {% endif %}
+          <td class="px-6 py-2 whitespace-nowrap bg-{{status_color}}-300">
+            <a href="/tasks/{{task.uuid}}">
+              <p class="text-lg font-bold text-slate-700">{{ task.status }}</p>
+            </a>
+          </td>
+          <td class="px-6 py-2 whitespace-nowrap">
+            <a href="/tasks/{{task.uuid}}">
+              <p class="text-lg font-bold text-slate-700">{{ task.response }}</p>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

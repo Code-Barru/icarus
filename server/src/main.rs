@@ -48,7 +48,8 @@ async fn main() {
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
-        );
+        )
+        .fallback(utils::not_found_handler);
 
     // setup server
     let listener = match TcpListener::bind("0.0.0.0:1337").await {

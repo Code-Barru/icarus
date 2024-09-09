@@ -1,5 +1,7 @@
 use std::sync::{Arc, Mutex};
 
+use axum::{http::StatusCode, response::IntoResponse};
+
 use crate::agents::{self, models::AgentEntry};
 
 pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
@@ -59,4 +61,8 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
 
 pub async fn get_favicon() -> Vec<u8> {
     include_bytes!("../templates/assets/favicon.ico").to_vec()
+}
+
+pub async fn not_found_handler() -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, "404 Not Found")
 }

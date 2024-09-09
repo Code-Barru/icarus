@@ -1,0 +1,15 @@
+{% extends "agents-layout.html" %} {% block agentNavBg %}bg-slate-50{% endblock
+%} {% block content %}
+<div class="flex flex-row mx-3 my-2 justify-center">
+    <!-- Header -->
+    <div class="font-bold">
+        {{agent.uuid}} <br>
+        {{agent.status}} <br>
+        {{agent.last_seen_at_str}} <br>
+        {{agent.ip}} <br>
+        {{agent.hostname}} <br>
+        {{agent.platform}} <br>
+    </div>
+</div>
+
+{% endblock %}
