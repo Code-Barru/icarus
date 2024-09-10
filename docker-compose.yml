@@ -5,4 +5,4 @@ services:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - "8081:1337"
+      - "1337:1337"

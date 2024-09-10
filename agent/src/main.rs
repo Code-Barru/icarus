@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         std::process::exit(1);
     }
     let remote_server = if cfg!(debug_assertions) {
-        "http://localhost:1337/c2".to_string()
+        "http://localhost:1337".to_string()
     } else {
         args[1].clone()
     };

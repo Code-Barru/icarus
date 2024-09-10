@@ -4,6 +4,8 @@
 
 A Command and Control server and his agent written in Rust🦀!
 
+Web interface written using SvelteKit and Tailwindcss!
+
 > [!warning]
 > 🚧This project is still in development!🚧
 

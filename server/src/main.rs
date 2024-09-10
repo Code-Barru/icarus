@@ -6,15 +6,13 @@ use std::{
 mod agents;
 mod tasks;
 mod utils;
-mod web;
 
 use agents::models::AgentEntry;
 use axum::Router;
+use http::Method;
 use tokio::net::TcpListener;
-use tower_http::{
-    services::ServeDir,
-    trace::{self, TraceLayer},
-};
+use tower_http::cors::{Any, CorsLayer};
+use tower_http::trace::{self, TraceLayer};
 use tracing::Level;
 
 static AGENTS_HEALTH_CHECK_INTERVAL: u64 = 1;
@@ -37,18 +35,19 @@ async fn main() {
         .compact()
         .init();
 
+    let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_origin(Any);
     // setup router & services
     let app = Router::new()
-        .nest_service("/assets", ServeDir::new("templates/assets"))
-        .nest("/", web::services::get_router(state.clone()))
-        .nest("/c2/agents", agents::services::get_router(state.clone()))
-        .nest("/c2/tasks", tasks::services::get_router(state.clone()))
-        .route("/favicon.ico", axum::routing::get(utils::get_favicon))
+        .nest("/agents", agents::services::get_router(state.clone()))
+        .nest("/tasks", tasks::services::get_router(state.clone()))
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
                 .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
         )
+        .layer(cors)
         .fallback(utils::not_found_handler);
 
     // setup server

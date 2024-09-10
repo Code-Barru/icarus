@@ -21,6 +21,18 @@ async fn get_agents(state: State<AppState>) -> impl IntoResponse {
     Json(agents.clone()).into_response()
 }
 
+async fn get_single_agent(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoResponse {
+    let agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    let agent = agents.iter().find(|agent| agent.uuid == id);
+    match agent {
+        Some(agent) => Json(agent.clone()).into_response(),
+        None => StatusCode::NOT_FOUND.into_response(),
+    }
+}
+
 async fn get_my_tasks(state: State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
     let mut agents = match state.agents.lock() {
         Ok(agents) => agents,
@@ -68,7 +80,6 @@ async fn create_agents(
         tasks: Vec::new(),
         created_at: chrono::Utc::now().timestamp(),
         last_seen_at: chrono::Utc::now().timestamp(),
-        last_seen_at_str: "now".to_string(),
         ip: addr.ip().to_string(),
         hostname: payload.hostname,
         platform: payload.platform,
@@ -118,6 +129,8 @@ async fn get_tasks(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoRes
 pub fn get_router(state: AppState) -> Router {
     Router::new()
         .route("/", get(get_agents))
+        .with_state(state.clone())
+        .route("/:id", get(get_single_agent))
         .with_state(state.clone())
         .route("/register", post(create_agents))
         .with_state(state.clone())
