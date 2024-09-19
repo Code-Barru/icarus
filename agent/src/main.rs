@@ -1,6 +1,7 @@
 mod requests;
 mod tasks;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 static TASKS_FETCH_INTERVAL: u64 = 3;
 

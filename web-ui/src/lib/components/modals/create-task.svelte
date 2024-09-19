@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { SvelteComponent } from 'svelte';
 	import { TaskType } from '$lib/types';
-
+	const C2_URL = import.meta.env.VITE_C2_URL as string;
 	// Stores
 	import { getModalStore } from '@skeletonlabs/skeleton';
 
@@ -14,13 +14,28 @@
 	// Form Data
 	const formData = {
 		agent: $modalStore[0].meta.agent,
-		taskType: 'Select a Task Type' as TaskType
+		task_type: '',
+		input: ''
 	};
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onFormSubmit(): void {
-		if ($modalStore[0].response) $modalStore[0].response(formData);
-		modalStore.close();
+		console.log(formData);
+		fetch(`${C2_URL}/tasks`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(formData)
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				console.log('Success:', data);
+				modalStore.close();
+			})
+			.catch((error) => {
+				console.error('Error:', error);
+			});
 	}
 
 	// Base Classes
@@ -63,12 +78,18 @@
 			{/if}
 			<label class="label">
 				<span>Task Type</span>
-				<select class="input {cInput}" bind:value={formData.taskType}>
+				<select class="input {cInput}" bind:value={formData.task_type}>
 					{#each Object.values(TaskType) as taskType}
 						<option value={taskType}>{taskType}</option>
 					{/each}
 				</select>
 			</label>
+			{#if formData.task_type === TaskType.PowerShellCommand || formData.task_type === TaskType.ShellCommand}
+				<label class="label">
+					<span>Input</span>
+					<input class="input {cInput}" type="text" bind:value={formData.input} />
+				</label>
+			{/if}
 		</form>
 		<!-- prettier-ignore -->
 		<footer class="modal-footer {parent.regionFooter}">

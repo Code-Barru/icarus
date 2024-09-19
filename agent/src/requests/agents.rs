@@ -6,10 +6,7 @@ use crate::{requests::models::RegisterRequest, State};
 use sysinfo::System;
 
 pub async fn register(state: &mut State) -> Result<(), Box<dyn std::error::Error>> {
-    let http = match state.http.lock() {
-        Ok(http) => http,
-        Err(_) => return Err("Failed to lock http client".into()),
-    };
+    let http = state.http.lock().await;
 
     let request = RegisterRequest {
         hostname: System::host_name().unwrap(),
@@ -32,10 +29,7 @@ pub async fn register(state: &mut State) -> Result<(), Box<dyn std::error::Error
 }
 
 pub async fn get_tasks(state: &mut State) -> Result<(), Box<dyn std::error::Error>> {
-    let http = match state.http.lock() {
-        Ok(http) => http,
-        Err(_) => return Err("Failed to lock http client".into()),
-    };
+    let http = state.http.lock().await;
 
     let request = http
         .get(format!(

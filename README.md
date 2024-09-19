@@ -9,13 +9,12 @@ Web interface written using SvelteKit and Tailwindcss!
 > [!warning]
 > 🚧This project is still in development!🚧
 
-## Features
+## Web UI (Order of priority)
 
 ### TODO
 
-- [ ] Upload payload
 - [ ] ReverShell in web app 👾
-- [ ] Nuke the client ☢
+- [ ] WebSockets (live update) 🧠
 
 ### In Progress
 
@@ -24,6 +23,21 @@ Web interface written using SvelteKit and Tailwindcss!
 ### Done
 
 - [x] Task queuing 📃
+
+## Tasks
+
+### TODO
+
+- [ ] Upload payload 📁
+- [ ] Reverse Shell
+- [ ] Nuke the client ☢
+
+### DOING
+
+### DONE
+
+- [ ] Powershell Command
+- [ ] Shell Command
 
 ## Prerequisite
 

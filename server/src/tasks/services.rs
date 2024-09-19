@@ -19,6 +19,18 @@ async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
     Json(tasks).into_response()
 }
 
+async fn get_single_task(state: State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
+    let agents = state.agents.lock().unwrap();
+    let task = agents
+        .iter()
+        .flat_map(|agent| agent.tasks.clone())
+        .find(|task| task.uuid == id);
+    match task {
+        Some(task) => Json(task).into_response(),
+        None => StatusCode::NOT_FOUND.into_response(),
+    }
+}
+
 async fn create_tasks(
     state: State<AppState>,
     Json(payload): Json<CreateTask>,
@@ -94,6 +106,8 @@ async fn update_tasks(
 pub fn get_router(state: AppState) -> Router {
     Router::new()
         .route("/", get(get_tasks))
+        .with_state(state.clone())
+        .route("/:id", get(get_single_task))
         .with_state(state.clone())
         .route("/", post(create_tasks))
         .with_state(state.clone())

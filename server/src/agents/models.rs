@@ -8,9 +8,7 @@ pub struct AgentEntry {
     pub uuid: Uuid,
     pub status: AgentStatus,
 
-    #[serde(skip_serializing)]
     pub tasks: Vec<TaskEntry>,
-
     pub created_at: i64,
     pub last_seen_at: i64,
     pub ip: String,

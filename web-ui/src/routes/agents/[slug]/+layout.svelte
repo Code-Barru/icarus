@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AgentNav from '../../../components/agent-nav.svelte';
+	import AgentNav from '$lib/components/agent-nav.svelte';
 
 	export let data;
 </script>

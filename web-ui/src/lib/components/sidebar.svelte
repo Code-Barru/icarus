@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { AppRail, AppRailAnchor } from '@skeletonlabs/skeleton';
-	import { Binary, ClipboardList, House, Settings, UserRound } from 'lucide-svelte';
+	import { ClipboardList, House, Settings, UserRound } from 'lucide-svelte';
 </script>
 
-<AppRail class="w-32">
+<AppRail class="w-32 hidden md:block">
 	<AppRailAnchor href="/" selected={$page.url.pathname === '/'} name="Home" title="Home">
 		<svelte:fragment slot="lead"><House /></svelte:fragment>
 		<span>Home</span>
@@ -17,11 +17,6 @@
 		<svelte:fragment slot="lead"><ClipboardList /></svelte:fragment>
 		<span>Tasks</span>
 	</AppRailAnchor>
-	<AppRailAnchor href="/payloads" selected={$page.url.pathname === '/payloads'} name="Payloads">
-		<svelte:fragment slot="lead"><Binary /></svelte:fragment>
-		<span>Payloads</span>
-	</AppRailAnchor>
-
 	<svelte:fragment slot="trail">
 		<AppRailAnchor href="/settings" name="Settings" selected={$page.url.pathname === '/settings'}>
 			<svelte:fragment slot="lead"><Settings /></svelte:fragment>

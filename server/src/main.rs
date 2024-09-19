@@ -9,7 +9,8 @@ mod utils;
 
 use agents::models::AgentEntry;
 use axum::Router;
-use http::Method;
+
+use http::{header, Method};
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::{self, TraceLayer};
@@ -37,7 +38,12 @@ async fn main() {
 
     let cors = CorsLayer::new()
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-        .allow_origin(Any);
+        .allow_origin(Any)
+        .allow_headers(vec![
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+            header::ACCEPT,
+        ]);
     // setup router & services
     let app = Router::new()
         .nest("/agents", agents::services::get_router(state.clone()))

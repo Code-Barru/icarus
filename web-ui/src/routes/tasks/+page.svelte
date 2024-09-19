@@ -5,6 +5,6 @@
 <div class="text-2xl font-bold">Tasks</div>
 {#if data}
 	{#each data.tasks as task}
-		<div>{task.task_type}</div>
+		<a href="/tasks/{task.uuid}">{task.task_type}</a>
 	{/each}
 {/if}
