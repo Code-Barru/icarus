@@ -20,32 +20,32 @@
 	<div class="flex flex-col justify-center h-48">
 		<div
 			class="{agent.status.toString() === 'Online'
-				? 'text-slate-500'
-				: 'text-slate-700'} justify-start text-sm group-hover:text-slate-200 transition flex flex-row py-2 px-4"
+				? 'text-slate-500 group-hover:text-primary-200'
+				: 'text-slate-700'} justify-start text-sm transition flex flex-row py-2 px-4"
 		>
 			<Cable size="20" class="mr-1" />
 			{agent.status}
 		</div>
 		<div
-			class="text-slate-500 justify-start text-sm group-hover:text-slate-200 transition flex flex-row py-2 px-4"
+			class="text-slate-500 justify-start text-sm group-hover:text-primary-200 transition flex flex-row py-2 px-4"
 		>
 			<Fingerprint size="20" class="mr-1" />
 			{agent.uuid.slice(0, 18)}
 		</div>
 		<div
-			class="text-slate-500 justify-start text-sm group-hover:text-slate-200 transition flex flex-row py-2 px-4"
+			class="text-slate-500 justify-start text-sm group-hover:text-primary-200 transition flex flex-row py-2 px-4"
 		>
 			<Cpu size="20" class="mr-1" />
 			{agent.platform}
 		</div>
 		<div
-			class="text-slate-500 justify-start text-sm group-hover:text-slate-200 transition flex flex-row py-2 px-4"
+			class="text-slate-500 justify-start text-sm group-hover:text-primary-200 transition flex flex-row py-2 px-4"
 		>
 			<ArrowDownUp size="20" class="mr-1" />
 			{agent.ip}
 		</div>
 		<div
-			class="text-slate-500 justify-start text-sm group-hover:text-slate-200 transition flex flex-row py-2 px-4"
+			class="text-slate-500 justify-start text-sm group-hover:text-primary-200 transition flex flex-row py-2 px-4"
 		>
 			<ClipboardList size="20" class="mr-1" />
 			{agent.tasks.length ? agent.tasks.length : 0}

@@ -13,6 +13,7 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
+- [ ] File Explorer
 - [ ] ReverShell in web app 👾
 - [ ] WebSockets (live update) 🧠
 

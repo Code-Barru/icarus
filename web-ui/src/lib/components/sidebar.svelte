@@ -4,7 +4,7 @@
 	import { ClipboardList, House, Settings, UserRound } from 'lucide-svelte';
 </script>
 
-<AppRail class="w-32 hidden md:block">
+<AppRail class="w-32 hidden md:block text-primary-200">
 	<AppRailAnchor href="/" selected={$page.url.pathname === '/'} name="Home" title="Home">
 		<svelte:fragment slot="lead"><House /></svelte:fragment>
 		<span>Home</span>
