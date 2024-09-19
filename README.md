@@ -13,32 +13,32 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
-- [ ] File Explorer
-- [ ] ReverShell in web app 👾
-- [ ] WebSockets (live update) 🧠
+- [ ] 📂 File Explorer
+- [ ] 👾 ReverShell in web app
+- [ ] 🧠 WebSockets (live update)
 
 ### In Progress
 
-- [ ] Web Interface 💻
+- [ ] 💻 Web Interface
 
 ### Done
 
-- [x] Task queuing 📃
+- [x] 📃 Task queuing
 
 ## Tasks
 
 ### TODO
 
-- [ ] Upload payload 📁
-- [ ] Reverse Shell
-- [ ] Nuke the client ☢
+- [ ] 📁 Upload payload
+- [ ] `>_` Reverse Shell
+- [ ] ☢ Nuke the client
 
 ### DOING
 
 ### DONE
 
-- [ ] Powershell Command
-- [ ] Shell Command
+- [x] `>_` Powershell Command
+- [x] `>_` Shell Command
 
 ## Prerequisite
 
@@ -52,7 +52,7 @@ Change `REMOTE ADDRESS` address in `agent/main.rs`
 git clone https://github.com/Code-Barru/icarus.git
 cd icarus
 docker-compose up -d    # launches the server
-cd agent && cargo build # builds the agent
+cargo build -p agent    # builds the agent
 # upload the agent to target machine
 # ???
 # profit
