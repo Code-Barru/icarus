@@ -79,7 +79,7 @@
 				<span class="text-primary-100">Task Type</span>
 				<select class="input {cInput}" bind:value={formData.task_type}>
 					{#each Object.values(TaskType) as taskType}
-						<option value={taskType}>{taskType}</option>
+						<option class="hover:bg-secondary-200-800-token" value={taskType}>{taskType}</option>
 					{/each}
 				</select>
 			</label>
