@@ -2,6 +2,7 @@
 	import '../app.postcss';
 	import { AppShell } from '@skeletonlabs/skeleton';
 	import Sidebar from '$lib/components/sidebar.svelte';
+	import PageTransition from '../transition.svelte';
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
@@ -15,6 +16,8 @@
 
 	initializeStores();
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
+
+	export let data;
 </script>
 
 <Modal components={modalRegistry} />
@@ -22,5 +25,7 @@
 	<svelte:fragment slot="sidebarLeft">
 		<Sidebar />
 	</svelte:fragment>
-	<slot />
+	<PageTransition url={data.url}>
+		<slot />
+	</PageTransition>
 </AppShell>

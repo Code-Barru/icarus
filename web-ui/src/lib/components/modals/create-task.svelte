@@ -43,17 +43,16 @@
 	const cHeader = 'text-2xl font-bold';
 	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';
 	const cInput =
-		'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500';
+		'outline-none focus:ring-0 bg-surface-50 border border-surface-300 text-primary-500 font-bold text-sm rounded-lg focus:ring-primary-200-800-token focus:border-primary-200-800-token block w-full p-2';
 </script>
 
 {#if $modalStore[0]}
 	<div class="modal-example-form {cBase}">
 		<header class={cHeader}>{$modalStore[0].title ?? 'Create a new Task'}</header>
-		<!-- Enable for debugging: -->
 		<form class="modal-form {cForm}">
 			{#if Array.isArray($modalStore[0].meta.agent)}
 				<label class="label">
-					<span>Agent UUID</span>
+					<span class="text-primary-100">Agent UUID</span>
 					<select class="input {cInput}" bind:value={formData.agent}>
 						{#each $modalStore[0].meta.agent as agent}
 							<option value={agent}>{agent}</option>
@@ -62,12 +61,12 @@
 				</label>
 			{:else if $modalStore[0].meta.agent}
 				<label class="label">
-					<span>Agent UUID</span>
+					<span class="text-primary-100">Agent UUID</span>
 					<input class="input {cInput}" type="text" bind:value={formData.agent} disabled />
 				</label>
 			{:else}
 				<label class="label">
-					<span>Agent UUID</span>
+					<span class="text-primary-100">Agent UUID</span>
 					<input
 						class="input {cInput}"
 						type="text"
@@ -77,7 +76,7 @@
 				</label>
 			{/if}
 			<label class="label">
-				<span>Task Type</span>
+				<span class="text-primary-100">Task Type</span>
 				<select class="input {cInput}" bind:value={formData.task_type}>
 					{#each Object.values(TaskType) as taskType}
 						<option value={taskType}>{taskType}</option>
@@ -86,15 +85,22 @@
 			</label>
 			{#if formData.task_type === TaskType.PowerShellCommand || formData.task_type === TaskType.ShellCommand}
 				<label class="label">
-					<span>Input</span>
+					<span class="text-primary-100">Input</span>
 					<input class="input {cInput}" type="text" bind:value={formData.input} />
 				</label>
 			{/if}
 		</form>
 		<!-- prettier-ignore -->
-		<footer class="modal-footer {parent.regionFooter}">
-			<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-			<button class="btn {parent.buttonPositive}" on:click={onFormSubmit}>{parent.buttonTextSubmit}</button>
+		<footer class="{parent.regionFooter}">
+			<button class="btn variant-ghost " on:click={parent.onClose}>Cancel</button>
+			<button class="btn variant-filled-primary" on:click={onFormSubmit}>Create</button>
 		</footer>
 	</div>
 {/if}
+
+<style>
+	button:focus {
+		outline: none !important;
+		box-shadow: none !important;
+	}
+</style>
