@@ -14,7 +14,26 @@ pub struct AgentEntry {
     pub ip: String,
     pub hostname: String,
     pub platform: String,
+    pub hardware: Option<AgentHardware>,
 }
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct AgentHardware {
+    pub cpu: String,
+    pub memory: String,
+    pub disks: Vec<AgentDisk>,
+    pub mac_address: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct AgentDisk {
+    pub total: u64,
+    pub free: u64,
+    pub used: u64,
+    pub name: String,
+    pub mount_point: String,
+}
+
 #[allow(dead_code)]
 #[derive(Deserialize, Clone)]
 pub struct CreateAgent {

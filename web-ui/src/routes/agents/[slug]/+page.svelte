@@ -13,37 +13,14 @@
 		Wifi,
 		WifiOff
 	} from 'lucide-svelte';
-	import { getDiskPourcentage } from '$lib/utils.js';
 	import { ProgressBar, getModalStore } from '@skeletonlabs/skeleton';
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
+	import type { AgentHardware } from '$lib/types.js';
 
 	export let data;
 	let agent = data.agent;
 
-	let agent_hardware = {
-		cpu: 'Intel Core i7-10700K',
-		gpu: 'NVIDIA GeForce RTX 3080',
-		mac_address: 'FE:A3:C9:11:62:D2',
-		ram: '32GB',
-		storage: [
-			{
-				model: 'Samsung 970 EVO Plus 1TB',
-				mountPoint: 'C:/',
-				name: 'Windows',
-				maxCapacity: '1TB',
-				usedCapacity: '650GB',
-				availableCapacity: '350GB'
-			},
-			{
-				model: 'Samsung 970 EVO Plus 1TB',
-				mountPoint: 'D:/',
-				name: 'Data',
-				maxCapacity: '1TB',
-				usedCapacity: '350 GB',
-				availableCapacity: '650 GB'
-			}
-		]
-	};
+	let agent_hardware: AgentHardware = agent.hardware;
 
 	const modalStore = getModalStore();
 	const modal: ModalSettings = {
@@ -81,12 +58,8 @@
 							{agent_hardware.cpu}
 						</div>
 						<div class="{textColor} flex flex-row my-1">
-							<Microchip class="w-5 h-5 mr-2" />
-							{agent_hardware.gpu}
-						</div>
-						<div class="{textColor} flex flex-row my-1">
 							<MemoryStick class="w-5 h-5 mr-2" />
-							{agent_hardware.ram}
+							{Number(Number(agent_hardware.memory) / 1024 / 1024 / 1024).toPrecision(2)} GB
 						</div>
 					</div>
 				</div>
@@ -123,22 +96,25 @@
 						<HardDrive class="w-7 h-7 mr-2" />
 						Storage
 					</span>
-					<div class="{textColor} px-4 flex flex-col text-center max-h-52 overflow-y-auto">
-						{#each agent_hardware.storage as drive}
+					<div class="{textColor} px-4 flex flex-col text-center max-h-72 overflow-y-auto">
+						{#each agent_hardware.disks as drive}
 							<div class="my-2">
 								<div class="flex flex-row justify-between">
-									{drive.name} ({drive.mountPoint})
+									{drive.name} ({drive.mount_point})
 								</div>
 								<ProgressBar
-									value={getDiskPourcentage(drive.usedCapacity, drive.maxCapacity)}
-									meter={getDiskPourcentage(drive.usedCapacity, drive.maxCapacity) > 90
+									value={Number(drive.total) - Number(drive.free)}
+									max={Number(drive.total)}
+									meter={(Number(drive.used) / Number(drive.total)) * 100 > 90
 										? 'bg-error-500'
 										: 'bg-primary-500'}
-									track={getDiskPourcentage(drive.usedCapacity, drive.maxCapacity) > 90
+									track={(Number(drive.used) / Number(drive.total)) * 100 > 90
 										? 'bg-error-500/30'
 										: 'bg-primary-500/30'}
 								/>
-								{drive.availableCapacity} free of {drive.maxCapacity}
+								{Number(Number(drive.free) / 1024 / 1024 / 1024).toPrecision(4)} GB free of {Number(
+									Number(drive.total) / 1024 / 1024 / 1024
+								).toPrecision(4)} GB
 							</div>
 							<hr />
 						{/each}

@@ -5,9 +5,25 @@ export type Agent = {
     ip: string;
     hostname: string;
     platform: string;
+    hardware: AgentHardware;
 
     createdAt: string;
     last_seen_at: string;
+}
+
+export type AgentHardware = {
+    cpu: string,
+    memory: BigUint64Array,
+    disks: AgentDisk[],
+    mac_address: string,
+}
+
+export type AgentDisk = {
+    total: BigInt,
+    free: BigInt,
+    used: BigInt,
+    name: string,
+    mount_point: string,
 }
 
 export enum AgentStatus {

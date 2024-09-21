@@ -33,6 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     requests::agents::register(&mut state).await?;
+    requests::agents::register_hardware(&mut state).await?;
 
     loop {
         requests::agents::get_tasks(&mut state).await?;

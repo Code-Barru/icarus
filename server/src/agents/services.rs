@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use super::models::{AgentEntry, AgentStatus, CreateAgent};
+use super::models::{AgentEntry, AgentHardware, AgentStatus, CreateAgent};
 use crate::{
     tasks::models::{TaskEntry, TaskStatus},
     AppState,
@@ -64,6 +64,29 @@ async fn get_my_tasks(state: State<AppState>, Path(id): Path<Uuid>) -> impl Into
     (StatusCode::OK, Json(tasks)).into_response()
 }
 
+async fn create_agent_hardware(
+    state: State<AppState>,
+    Path(id): Path<Uuid>,
+    Json(payload): Json<AgentHardware>,
+) -> impl IntoResponse {
+    let mut agents = match state.agents.lock() {
+        Ok(agents) => agents,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    let agent = agents.iter_mut().find(|agent| agent.uuid == id);
+    match agent {
+        Some(agent) => {
+            agent.hardware = Some(payload.clone());
+            (StatusCode::OK, Json(json!({"message": "Hardware updated"}))).into_response()
+        }
+        None => (
+            StatusCode::NOT_FOUND,
+            Json(json!({"error": "Agent not found"})),
+        )
+            .into_response(),
+    }
+}
+
 async fn create_agents(
     state: State<AppState>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
@@ -81,6 +104,7 @@ async fn create_agents(
         created_at: chrono::Utc::now().timestamp(),
         last_seen_at: chrono::Utc::now().timestamp(),
         ip: addr.ip().to_string(),
+        hardware: None,
         hostname: payload.hostname,
         platform: payload.platform,
     };
@@ -139,5 +163,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/:id/my_tasks", get(get_my_tasks))
         .with_state(state.clone())
         .route("/:id/tasks", get(get_tasks))
+        .with_state(state.clone())
+        .route("/:id/hardware", post(create_agent_hardware))
         .with_state(state.clone())
 }
