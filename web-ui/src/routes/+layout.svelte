@@ -23,6 +23,10 @@
 	export let data;
 </script>
 
+<svelte:head>
+	<title>Icarus</title>
+</svelte:head>
+
 <Modal components={modalRegistry} />
 <Drawer>
 	{#if $drawerStore.id === 'nav-drawer'}
