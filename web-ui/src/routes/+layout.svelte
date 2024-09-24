@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { io } from 'socket.io-client';
 	import '../app.postcss';
 	import { AppShell } from '@skeletonlabs/skeleton';
 	import Sidebar from '$lib/components/sidebar.svelte';
@@ -21,6 +22,8 @@
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 
 	export let data;
+
+	const socket = io('ws://localhost:1337');
 </script>
 
 <svelte:head>

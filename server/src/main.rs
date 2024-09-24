@@ -6,6 +6,7 @@ use std::{
 mod agents;
 mod tasks;
 mod utils;
+mod ws;
 
 use agents::models::AgentEntry;
 use axum::Router;
@@ -54,7 +55,8 @@ async fn main() {
                 .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
         )
         .layer(cors)
-        .fallback(utils::not_found_handler);
+        .fallback(utils::not_found_handler)
+        .layer(ws::services::get_layer(state.clone()));
 
     // setup server
     let listener = match TcpListener::bind("0.0.0.0:1337").await {

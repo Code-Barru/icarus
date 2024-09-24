@@ -15,10 +15,11 @@ Web interface written using SvelteKit and Tailwindcss!
 
 - [ ] 📂 File Explorer
 - [ ] 👾 ReverShell in web app
-- [ ] 🧠 WebSockets (live update)
+- [ ] 📃 Task Interface
 
 ### In Progress
 
+- [ ] 🧠 WebSockets (live update)
 - [ ] 💻 Web Interface
 
 ### Done

@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use axum::{http::StatusCode, response::IntoResponse};
+use tracing::info;
 
 use crate::agents::{self, models::AgentEntry};
 
@@ -19,7 +20,7 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
                 > chrono::Utc::now().timestamp()
         {
             agent.status = agents::models::AgentStatus::Online;
-            println!("Agent {} just came from the dead!", agent.uuid);
+            info!("Agent {} just came from the dead!", agent.uuid);
         }
 
         if agent.last_seen_at + (crate::AGENTS_HEALTH_CHECK_TIMEOUT as i64)
@@ -27,7 +28,7 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
             && agent.status == agents::models::AgentStatus::Online
         {
             agent.status = agents::models::AgentStatus::Offline;
-            println!("Agent {} just went offline!", agent.uuid);
+            info!("Agent {} just went offline!", agent.uuid);
         }
     }
 }

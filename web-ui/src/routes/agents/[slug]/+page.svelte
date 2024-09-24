@@ -190,41 +190,47 @@
 						<tbody>
 							{#each agent.tasks as task}
 								<tr>
-									<td>{task.task_type}</td>
-									<td>
-										{#if task.status.toString() === 'Pending'}
-											<div class="border border-primary-900-50-token py-1 px-1 w-fit rounded">
-												{task.status}
-											</div>
-										{:else if task.status.toString() === 'InProgress'}
-											<div class="bg-secondary-500 py-1 px-1 w-fit rounded">{task.status}</div>
-										{:else if task.status.toString() === 'Failed'}
-											<div class="bg-error-500 py-1 px-1 w-fit rounded">{task.status}</div>
-										{:else if task.status.toString() === 'Completed'}
-											<div class="bg-success-500 py-1 px-1 w-fit rounded">{task.status}</div>
-										{/if}
+									<td><a href="/tasks/{task.uuid}">{task.task_type}</a></td>
+									<td
+										><a href="/tasks/{task.uuid}">
+											{#if task.status.toString() === 'Pending'}
+												<div class="border border-primary-900-50-token py-1 px-1 w-fit rounded">
+													{task.status}
+												</div>
+											{:else if task.status.toString() === 'InProgress'}
+												<div class="bg-secondary-500 py-1 px-1 w-fit rounded">{task.status}</div>
+											{:else if task.status.toString() === 'Failed'}
+												<div class="bg-error-500 py-1 px-1 w-fit rounded">{task.status}</div>
+											{:else if task.status.toString() === 'Completed'}
+												<div class="bg-success-500 py-1 px-1 w-fit rounded">{task.status}</div>
+											{/if}
+										</a>
 									</td>
 									<td class="hidden md:table-cell"
-										>{new Date(Number(task.emitted_at) * 1000).toLocaleString('en-GB', {
-											day: '2-digit',
-											month: '2-digit',
-											year: 'numeric',
-											hour: '2-digit',
-											minute: '2-digit',
-											second: '2-digit'
-										})}</td
+										><a href="/tasks/{task.uuid}">
+											{new Date(Number(task.emitted_at) * 1000).toLocaleString('en-GB', {
+												day: '2-digit',
+												month: '2-digit',
+												year: 'numeric',
+												hour: '2-digit',
+												minute: '2-digit',
+												second: '2-digit'
+											})}</a
+										></td
 									>
 									<td class="hidden md:table-cell"
-										>{task.completed_at
-											? new Date(Number(task.completed_at) * 1000).toLocaleString('en-GB', {
-													day: '2-digit',
-													month: '2-digit',
-													year: 'numeric',
-													hour: '2-digit',
-													minute: '2-digit',
-													second: '2-digit'
-												})
-											: 'N/A'}</td
+										><a href="/tasks/{task.uuid}"
+											>{task.completed_at
+												? new Date(Number(task.completed_at) * 1000).toLocaleString('en-GB', {
+														day: '2-digit',
+														month: '2-digit',
+														year: 'numeric',
+														hour: '2-digit',
+														minute: '2-digit',
+														second: '2-digit'
+													})
+												: 'N/A'}</a
+										></td
 									>
 								</tr>
 							{/each}
