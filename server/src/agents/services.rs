@@ -38,30 +38,32 @@ async fn get_my_tasks(state: State<AppState>, Path(id): Path<Uuid>) -> impl Into
         Ok(agents) => agents,
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
-    let tasks: Vec<TaskEntry> = match agents.iter_mut().find(|agent| agent.uuid == id) {
-        Some(agent) => {
-            agent.last_seen_at = chrono::Utc::now().timestamp();
-            let mut tasks = Vec::<TaskEntry>::new();
-
-            agent.tasks.iter_mut().for_each(|task| {
-                if task.status == TaskStatus::Pending {
-                    task.status = TaskStatus::InProgress;
-                    tasks.push(task.clone());
-                }
-            });
-
-            tasks
-        }
-        None => {
-            return (
-                StatusCode::NOT_FOUND,
-                Json(json!({"error": "Agent not found"})),
-            )
-                .into_response()
-        }
+    let agent = match agents.iter_mut().find(|agent| agent.uuid == id) {
+        Some(agent) => agent,
+        None => return StatusCode::NOT_FOUND.into_response(),
     };
+    agent.last_seen_at = chrono::Utc::now().timestamp();
 
-    (StatusCode::OK, Json(tasks)).into_response()
+    let mut tasks = match state.tasks.lock() {
+        Ok(tasks) => tasks,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    let mut tasks = tasks
+        .iter_mut()
+        .filter(|task| task.agent == id && task.status == TaskStatus::Pending);
+    let mut tasks_reponse = vec![];
+
+    for task in &mut tasks {
+        task.status = TaskStatus::InProgress;
+
+        match state.io.emit("task_update", task.clone()) {
+            Ok(_) => (),
+            Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+        };
+
+        tasks_reponse.push(task.clone());
+    }
+    (StatusCode::OK, Json(tasks_reponse)).into_response()
 }
 
 async fn create_agent_hardware(
@@ -77,6 +79,10 @@ async fn create_agent_hardware(
     match agent {
         Some(agent) => {
             agent.hardware = Some(payload.clone());
+            match state.io.emit("agent_create", agent.clone()) {
+                Ok(_) => (),
+                Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+            };
             (StatusCode::OK, Json(json!({"message": "Hardware updated"}))).into_response()
         }
         None => (
@@ -138,16 +144,21 @@ async fn get_tasks(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoRes
     };
     let agent = agents.iter().find(|agent| agent.uuid == id);
     match agent {
-        Some(agent) => {
-            let tasks = agent.tasks.clone();
-            (StatusCode::OK, Json(tasks)).into_response()
-        }
-        None => (
-            StatusCode::NOT_FOUND,
-            Json(json!({"error": "Agent not found"})),
-        )
-            .into_response(),
-    }
+        Some(agent) => agent,
+        None => return StatusCode::NOT_FOUND.into_response(),
+    };
+
+    let tasks = match state.tasks.lock() {
+        Ok(tasks) => tasks,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    let tasks = tasks
+        .iter()
+        .filter(|task| task.agent == id)
+        .cloned()
+        .collect::<Vec<TaskEntry>>();
+
+    (StatusCode::OK, Json(tasks)).into_response()
 }
 
 pub fn get_router(state: AppState) -> Router {

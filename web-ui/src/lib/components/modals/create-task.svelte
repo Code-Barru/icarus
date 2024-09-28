@@ -20,7 +20,6 @@
 
 	// We've created a custom submit function to pass the response and close the modal.
 	function onFormSubmit(): void {
-		console.log(formData);
 		fetch(`${C2_URL}/tasks`, {
 			method: 'POST',
 			headers: {
@@ -30,7 +29,6 @@
 		})
 			.then((response) => response.json())
 			.then((data) => {
-				console.log('Success:', data);
 				modalStore.close();
 			})
 			.catch((error) => {

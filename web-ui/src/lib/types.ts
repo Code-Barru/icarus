@@ -1,7 +1,7 @@
 export type Agent = {
     uuid: string;
     status: AgentStatus;
-    tasks: Task[];
+    tasks: string[];
     ip: string;
     hostname: string;
     platform: string;

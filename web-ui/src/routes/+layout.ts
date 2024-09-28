@@ -1,5 +1,7 @@
-export async function load({ url }) {
-	return {
-		url: url.pathname
-	}
+export function load({ data, url }) {
+    let pathname = url.pathname;
+    return {
+        ...data,
+        pathname
+    }
 }

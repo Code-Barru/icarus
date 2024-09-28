@@ -24,7 +24,6 @@ pub struct CreateTask {
 #[derive(Deserialize, Clone)]
 pub struct UpdateTask {
     pub status: TaskStatus,
-    pub agent: Uuid,
     pub response: Option<String>,
 }
 

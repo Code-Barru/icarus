@@ -1,5 +1,3 @@
-use crate::tasks::models::TaskEntry;
-
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -8,7 +6,7 @@ pub struct AgentEntry {
     pub uuid: Uuid,
     pub status: AgentStatus,
 
-    pub tasks: Vec<TaskEntry>,
+    pub tasks: Vec<Uuid>,
     pub created_at: i64,
     pub last_seen_at: i64,
     pub ip: String,

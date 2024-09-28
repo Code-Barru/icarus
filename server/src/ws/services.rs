@@ -1,14 +1,11 @@
 use serde_json::Value;
 use socketioxide::{
     extract::{Data, SocketRef},
-    layer::SocketIoLayer,
     SocketIo,
 };
 use tracing::info;
 
-use crate::AppState;
-
-fn on_connect(socket: SocketRef, state: AppState) {
+fn on_connect(socket: SocketRef) {
     info!("Socket.IO connected: {:?} {:?}", socket.ns(), socket.id);
 
     socket.on("message", |_socket: SocketRef, Data::<Value>(data)| {
@@ -16,8 +13,6 @@ fn on_connect(socket: SocketRef, state: AppState) {
     });
 }
 
-pub fn get_layer(state: AppState) -> SocketIoLayer {
-    let (layer, io) = SocketIo::new_layer();
-    io.ns("/", move |socket| on_connect(socket, state.clone()));
-    layer
+pub fn setup_ws(io: &SocketIo) {
+    io.ns("/", move |socket| on_connect(socket));
 }

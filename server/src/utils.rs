@@ -1,11 +1,12 @@
 use std::sync::{Arc, Mutex};
 
 use axum::{http::StatusCode, response::IntoResponse};
+use socketioxide::SocketIo;
 use tracing::info;
 
 use crate::agents::{self, models::AgentEntry};
 
-pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
+pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>, io: &mut SocketIo) {
     let mut agents = match agents.lock() {
         Ok(agents) => agents,
         Err(_) => return,
@@ -20,6 +21,10 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
                 > chrono::Utc::now().timestamp()
         {
             agent.status = agents::models::AgentStatus::Online;
+            match io.emit("agent_reconnect", agent.uuid) {
+                Ok(_) => (),
+                Err(_) => continue,
+            };
             info!("Agent {} just came from the dead!", agent.uuid);
         }
 
@@ -28,6 +33,10 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>) {
             && agent.status == agents::models::AgentStatus::Online
         {
             agent.status = agents::models::AgentStatus::Offline;
+            match io.emit("agent_disconnect", agent.uuid) {
+                Ok(_) => (),
+                Err(_) => continue,
+            };
             info!("Agent {} just went offline!", agent.uuid);
         }
     }

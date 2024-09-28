@@ -1444,6 +1444,7 @@ dependencies = [
  "serde_json",
  "socketioxide",
  "tokio",
+ "tower 0.5.1",
  "tower-http",
  "tracing",
  "tracing-subscriber",

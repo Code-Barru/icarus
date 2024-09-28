@@ -1,4 +1,4 @@
-![Icarus](./img/Icarus-background.png)
+![Icarus](./doc/img/Icarus-background.png)
 
 # Icarus
 
@@ -19,12 +19,11 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### In Progress
 
-- [ ] 🧠 WebSockets (live update)
-- [ ] 💻 Web Interface
-
 ### Done
 
+- [x] 🧠 WebSockets (live update)
 - [x] 📃 Task queuing
+- [x] 🧑 Agent Page
 
 ## Tasks
 

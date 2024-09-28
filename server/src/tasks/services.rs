@@ -11,20 +11,19 @@ use serde_json::json;
 use uuid::Uuid;
 
 async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
-    let agents = state.agents.lock().unwrap();
-    let tasks: Vec<TaskEntry> = agents
-        .iter()
-        .flat_map(|agent| agent.tasks.clone())
-        .collect();
+    let tasks = match state.tasks.lock() {
+        Ok(tasks) => tasks.clone(),
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
     Json(tasks).into_response()
 }
 
 async fn get_single_task(state: State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    let agents = state.agents.lock().unwrap();
-    let task = agents
-        .iter()
-        .flat_map(|agent| agent.tasks.clone())
-        .find(|task| task.uuid == id);
+    let tasks = match state.tasks.lock() {
+        Ok(tasks) => tasks,
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    let task = tasks.iter().find(|task| task.uuid == id);
     match task {
         Some(task) => Json(task).into_response(),
         None => StatusCode::NOT_FOUND.into_response(),
@@ -67,7 +66,15 @@ async fn create_tasks(
         },
         completed_at: 0,
     };
-    agent.tasks.push(task.clone());
+    match state.io.emit("task_create", task.clone()) {
+        Ok(_) => (),
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
+    agent.tasks.push(task.uuid);
+    match state.tasks.lock() {
+        Ok(mut tasks) => tasks.push(task.clone()),
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    }
     (StatusCode::CREATED, Json(task)).into_response()
 }
 
@@ -76,30 +83,31 @@ async fn update_tasks(
     state: State<AppState>,
     Json(payload): Json<UpdateTask>,
 ) -> impl IntoResponse {
-    let mut agents = match state.agents.lock() {
-        Ok(agents) => agents,
+    let mut tasks = match state.tasks.lock() {
+        Ok(tasks) => tasks,
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
-    let agent = match agents.iter_mut().find(|agent| agent.uuid == payload.agent) {
-        Some(agent) => agent,
-        None => {
-            return (
-                StatusCode::NOT_FOUND,
-                Json(json!({"error": "Agent not found"})),
-            )
-                .into_response()
-        }
+
+    let task = match tasks.iter_mut().find(|task| task.uuid == id) {
+        Some(task) => task,
+        None => return StatusCode::NOT_FOUND.into_response(),
     };
 
-    let task = agent.tasks.iter_mut().find(|task| task.uuid == id).unwrap();
     task.status = payload.status;
 
     task.response = if Some(payload.response.clone()) == None {
         "N/A".to_string()
     } else {
-        payload.response.clone().unwrap()
+        match payload.response {
+            Some(response) => response,
+            None => "N/A".to_string(),
+        }
     };
     task.completed_at = chrono::Utc::now().timestamp();
+    match state.io.emit("task_update", task.clone()) {
+        Ok(_) => (),
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
     Json(task.clone()).into_response()
 }
 
