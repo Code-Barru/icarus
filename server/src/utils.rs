@@ -4,9 +4,9 @@ use axum::{http::StatusCode, response::IntoResponse};
 use socketioxide::SocketIo;
 use tracing::info;
 
-use crate::agents::{self, models::AgentEntry};
+use shared::models::{Agent, AgentStatus};
 
-pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>, io: &mut SocketIo) {
+pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<Agent>>>, io: &mut SocketIo) {
     let mut agents = match agents.lock() {
         Ok(agents) => agents,
         Err(_) => return,
@@ -16,11 +16,11 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>, io: &
     }
 
     for agent in agents.iter_mut() {
-        if agent.status == agents::models::AgentStatus::Offline
+        if agent.status == AgentStatus::Offline
             && agent.last_seen_at + (crate::AGENTS_HEALTH_CHECK_TIMEOUT as i64)
                 > chrono::Utc::now().timestamp()
         {
-            agent.status = agents::models::AgentStatus::Online;
+            agent.status = AgentStatus::Online;
             match io.emit("agent_reconnect", agent.uuid) {
                 Ok(_) => (),
                 Err(_) => continue,
@@ -30,9 +30,9 @@ pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<AgentEntry>>>, io: &
 
         if agent.last_seen_at + (crate::AGENTS_HEALTH_CHECK_TIMEOUT as i64)
             < chrono::Utc::now().timestamp()
-            && agent.status == agents::models::AgentStatus::Online
+            && agent.status == AgentStatus::Online
         {
-            agent.status = agents::models::AgentStatus::Offline;
+            agent.status = AgentStatus::Offline;
             match io.emit("agent_disconnect", agent.uuid) {
                 Ok(_) => (),
                 Err(_) => continue,

@@ -1,7 +1,7 @@
 use std::{error::Error, sync::Arc};
 use tokio::sync::Mutex;
 
-use models::TaskEntry;
+use shared::models::{Task, TaskStatus, TaskType};
 
 use crate::State;
 
@@ -10,11 +10,11 @@ mod shell;
 
 pub async fn task_handler(
     state: Arc<Mutex<State>>,
-    task: TaskEntry,
+    task: Task,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let task_clone = task.clone();
     let output = match task_clone.task_type {
-        models::TaskType::Shell => {
+        TaskType::Shell => {
             let input = match task_clone.input {
                 Some(input) => input,
                 None => {
@@ -36,7 +36,7 @@ pub async fn task_handler(
 pub async fn send_response(
     output: Result<Box<str>, Box<dyn std::error::Error + Send + Sync>>,
     state: &Arc<Mutex<State>>,
-    task: TaskEntry,
+    task: Task,
 ) {
     let state = state.lock().await;
     let http = state.http.lock().await;
@@ -45,7 +45,7 @@ pub async fn send_response(
         Ok(output) => output,
         Err(e) => {
             let update = models::UpdateTask {
-                status: models::TaskStatus::Failed,
+                status: TaskStatus::Failed,
                 agent: task.agent,
                 response: Some(e.to_string()),
             };
@@ -59,7 +59,7 @@ pub async fn send_response(
     };
 
     let update = models::UpdateTask {
-        status: models::TaskStatus::Completed,
+        status: TaskStatus::Completed,
         agent: task.agent,
         response: Some(response.to_string()),
     };

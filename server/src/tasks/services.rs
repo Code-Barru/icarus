@@ -1,4 +1,4 @@
-use super::models::{CreateTask, TaskEntry, TaskStatus, UpdateTask};
+use super::models::{CreateTask, UpdateTask};
 use crate::AppState;
 use axum::{
     extract::{Path, State},
@@ -8,6 +8,7 @@ use axum::{
     Json, Router,
 };
 use serde_json::json;
+use shared::models::{Task, TaskStatus};
 use uuid::Uuid;
 
 async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
@@ -48,20 +49,19 @@ async fn create_tasks(
                 .into_response()
         }
     };
-    let task = TaskEntry {
+    let task = Task {
         uuid: Uuid::new_v4(),
         status: TaskStatus::Pending,
         emitted_at: chrono::Utc::now().timestamp(),
         task_type: payload.task_type,
         agent: agent.uuid,
-        agent_name: agent.hostname.clone(),
-        response: "N/A".to_string(),
+        response: Some("N/A".to_string()),
         input: if Some(payload.input.clone()) == None {
-            "N/A".to_string()
+            None
         } else {
             match payload.input.clone() {
-                Some(input) => input,
-                None => "N/A".to_string(),
+                Some(input) => Some(input),
+                None => None,
             }
         },
         completed_at: 0,
@@ -96,11 +96,11 @@ async fn update_tasks(
     task.status = payload.status;
 
     task.response = if Some(payload.response.clone()) == None {
-        "N/A".to_string()
+        None
     } else {
         match payload.response {
-            Some(response) => response,
-            None => "N/A".to_string(),
+            Some(response) => Some(response),
+            None => None,
         }
     };
     task.completed_at = chrono::Utc::now().timestamp();

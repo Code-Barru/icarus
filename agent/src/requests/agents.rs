@@ -1,8 +1,8 @@
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use crate::tasks::models::TaskEntry;
 use crate::{requests::models::RegisterRequest, State};
+use shared::models::Task;
 use sysinfo::{Disks, Networks, System};
 
 pub async fn register(state: &mut State) -> Result<(), Box<dyn std::error::Error>> {
@@ -28,12 +28,12 @@ pub async fn register(state: &mut State) -> Result<(), Box<dyn std::error::Error
     Ok(())
 }
 
-pub fn get_hardware() -> Result<super::models::AgentHardware, Box<dyn std::error::Error>> {
+pub fn get_hardware() -> Result<shared::models::AgentHardware, Box<dyn std::error::Error>> {
     let system = System::new_all();
     let disks = Disks::new_with_refreshed_list();
     let disks = disks
         .iter()
-        .map(|disk| super::models::AgentDisk {
+        .map(|disk| shared::models::AgentDisk {
             total: disk.total_space(),
             free: disk.available_space(),
             used: disk.total_space() - disk.available_space(),
@@ -49,7 +49,7 @@ pub fn get_hardware() -> Result<super::models::AgentHardware, Box<dyn std::error
         .map(|(_, data)| data.mac_address())
         .ok_or("No network interfaces found")?;
 
-    Ok(super::models::AgentHardware {
+    Ok(shared::models::AgentHardware {
         cpu: system.cpus()[0].brand().to_string().trim().to_string(),
         memory: format!("{}", system.total_memory()),
         disks,
@@ -89,7 +89,7 @@ pub async fn get_tasks(state: &mut State) -> Result<(), Box<dyn std::error::Erro
         ))
         .send()
         .await?;
-    let json = request.json::<Vec<TaskEntry>>().await?;
+    let json = request.json::<Vec<Task>>().await?;
 
     if json.len() == 0 {
         return Ok(());

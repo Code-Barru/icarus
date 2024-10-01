@@ -8,9 +8,8 @@ mod tasks;
 mod utils;
 mod ws;
 
-use agents::models::AgentEntry;
 use axum::Router;
-use tasks::models::TaskEntry;
+use shared::models::{Agent, Task};
 
 use http::{header, Method};
 use socketioxide::SocketIo;
@@ -25,8 +24,8 @@ static AGENTS_HEALTH_CHECK_TIMEOUT: u64 = 10;
 
 #[derive(Clone)]
 struct AppState {
-    agents: Arc<Mutex<Vec<AgentEntry>>>,
-    tasks: Arc<Mutex<Vec<TaskEntry>>>,
+    agents: Arc<Mutex<Vec<Agent>>>,
+    tasks: Arc<Mutex<Vec<Task>>>,
     io: SocketIo,
 }
 

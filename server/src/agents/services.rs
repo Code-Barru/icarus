@@ -1,10 +1,8 @@
 use std::net::SocketAddr;
 
-use super::models::{AgentEntry, AgentHardware, AgentStatus, CreateAgent};
-use crate::{
-    tasks::models::{TaskEntry, TaskStatus},
-    AppState,
-};
+use super::models::CreateAgent;
+use crate::AppState;
+use shared::models::{Agent, AgentHardware, AgentStatus, Task, TaskStatus};
 
 use axum::{
     extract::{ConnectInfo, Path, State},
@@ -103,7 +101,7 @@ async fn create_agents(
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
 
-    let agent = AgentEntry {
+    let agent = Agent {
         uuid: Uuid::new_v4(),
         status: AgentStatus::Online,
         tasks: Vec::new(),
@@ -160,7 +158,7 @@ async fn get_tasks(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoRes
         .iter()
         .filter(|task| task.agent == id)
         .cloned()
-        .collect::<Vec<TaskEntry>>();
+        .collect::<Vec<Task>>();
 
     (StatusCode::OK, Json(tasks)).into_response()
 }
