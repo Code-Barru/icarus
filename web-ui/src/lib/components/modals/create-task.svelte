@@ -46,33 +46,12 @@
 
 {#if $modalStore[0]}
 	<div class="modal-example-form {cBase}">
-		<header class={cHeader}>{$modalStore[0].title ?? 'Create a new Task'}</header>
+		<header class={cHeader}>{'Create a new Task'}</header>
 		<form class="modal-form {cForm}">
-			{#if Array.isArray($modalStore[0].meta.agent)}
-				<label class="label">
-					<span class="text-primary-100">Agent UUID</span>
-					<select class="input {cInput}" bind:value={formData.agent}>
-						{#each $modalStore[0].meta.agent as agent}
-							<option value={agent}>{agent}</option>
-						{/each}
-					</select>
-				</label>
-			{:else if $modalStore[0].meta.agent}
-				<label class="label">
-					<span class="text-primary-100">Agent UUID</span>
-					<input class="input {cInput}" type="text" bind:value={formData.agent} disabled />
-				</label>
-			{:else}
-				<label class="label">
-					<span class="text-primary-100">Agent UUID</span>
-					<input
-						class="input {cInput}"
-						type="text"
-						bind:value={formData.agent}
-						placeholder="Enter agent UUID..."
-					/>
-				</label>
-			{/if}
+			<label class="label">
+				<span class="text-primary-100">Agent UUID</span>
+				<input class="input {cInput}" type="text" bind:value={formData.agent} disabled />
+			</label>
 			<label class="label">
 				<span class="text-primary-100">Task Type</span>
 				<select class="input {cInput}" bind:value={formData.task_type}>
@@ -81,7 +60,7 @@
 					{/each}
 				</select>
 			</label>
-			{#if formData.task_type === TaskType.PowerShellCommand || formData.task_type === TaskType.ShellCommand}
+			{#if formData.task_type === TaskType.Shell}
 				<label class="label">
 					<span class="text-primary-100">Input</span>
 					<input class="input {cInput}" type="text" bind:value={formData.input} />

@@ -13,14 +13,15 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
-- [ ] 📂 File Explorer
 - [ ] 👾 ReverShell in web app
-- [ ] 📃 Task Interface
 
 ### In Progress
 
+- [ ] 📂 File Explorer
+
 ### Done
 
+- [x] 📄 Task Interface
 - [x] 🧠 WebSockets (live update)
 - [x] 📃 Task queuing
 - [x] 🧑 Agent Page
@@ -29,11 +30,11 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
-- [ ] 📁 Upload payload
 - [ ] `>_` Reverse Shell
-- [ ] ☢ Nuke the client
 
 ### DOING
+
+- [ ] 📁 Upload payload
 
 ### DONE
 

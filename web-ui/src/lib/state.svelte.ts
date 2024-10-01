@@ -44,6 +44,14 @@ export function getTaskState() {
 
 export function addTask(task: Task) {
     getTaskState().update(tasks => [...tasks, task]);
+    getAgentState().update(agents => {
+        return agents.map(agent => {
+            if (agent.uuid === task.agent) {
+                return { ...agent, tasks: [...agent.tasks, task.uuid] };
+            }
+            return agent;
+        });
+    });
 }
 
 export function updateTask(task: Task) {

@@ -36,6 +36,5 @@ pub enum TaskStatus {
 }
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum TaskType {
-    ShellCommand,
-    PowerShellCommand,
+    Shell,
 }

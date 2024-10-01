@@ -13,10 +13,9 @@ pub struct TaskEntry {
     pub completed_at: i64,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum TaskType {
-    ShellCommand,
-    PowerShellCommand,
+    Shell,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]

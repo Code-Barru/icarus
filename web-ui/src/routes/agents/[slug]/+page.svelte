@@ -5,7 +5,6 @@
 		Cpu,
 		EthernetPort,
 		HardDrive,
-		Microchip,
 		MemoryStick,
 		Monitor,
 		PcCase,
@@ -18,6 +17,7 @@
 	import type { Agent, Task } from '$lib/types.js';
 	import { getAgentState, getTaskState } from '$lib/state.svelte.js';
 	import type { Writable } from 'svelte/store';
+	import TaskRow from '$lib/components/tasks/task-row.svelte';
 
 	export let data;
 
@@ -32,7 +32,7 @@
 	$: tasks = $taskState.filter((task) => task.agent === data.uuid);
 
 	const modalStore = getModalStore();
-	const modal: ModalSettings = {
+	const createTask: ModalSettings = {
 		title: 'Create Task',
 		component: 'createTask',
 		meta: {
@@ -150,7 +150,7 @@
 					</div>
 					<button
 						class="{textColor} btn btn-sm variant-ghost-primary h-8 w-8 mt-4 mr-2"
-						on:click={() => modalStore.trigger(modal)}>+</button
+						on:click={() => modalStore.trigger(createTask)}>+</button
 					>
 				</div>
 				<hr />
@@ -203,51 +203,7 @@
 							</thead>
 							<tbody>
 								{#each tasks as task}
-									<tr>
-										<td><a href="/tasks/{task.uuid}">{task.task_type}</a></td>
-										<td
-											><a href="/tasks/{task.uuid}">
-												{#if task.status.toString() === 'Pending'}
-													<div class="border border-primary-900-50-token py-1 px-1 w-fit rounded">
-														{task.status}
-													</div>
-												{:else if task.status.toString() === 'InProgress'}
-													<div class="bg-secondary-500 py-1 px-1 w-fit rounded">{task.status}</div>
-												{:else if task.status.toString() === 'Failed'}
-													<div class="bg-error-500 py-1 px-1 w-fit rounded">{task.status}</div>
-												{:else if task.status.toString() === 'Completed'}
-													<div class="bg-success-500 py-1 px-1 w-fit rounded">{task.status}</div>
-												{/if}
-											</a>
-										</td>
-										<td class="hidden md:table-cell"
-											><a href="/tasks/{task.uuid}">
-												{new Date(Number(task.emitted_at) * 1000).toLocaleString('en-GB', {
-													day: '2-digit',
-													month: '2-digit',
-													year: 'numeric',
-													hour: '2-digit',
-													minute: '2-digit',
-													second: '2-digit'
-												})}</a
-											></td
-										>
-										<td class="hidden md:table-cell"
-											><a href="/tasks/{task.uuid}"
-												>{task.completed_at
-													? new Date(Number(task.completed_at) * 1000).toLocaleString('en-GB', {
-															day: '2-digit',
-															month: '2-digit',
-															year: 'numeric',
-															hour: '2-digit',
-															minute: '2-digit',
-															second: '2-digit'
-														})
-													: 'N/A'}</a
-											></td
-										>
-									</tr>
-								{/each}
+									<TaskRow {task} />{/each}
 							</tbody>
 						</table>
 					</div>

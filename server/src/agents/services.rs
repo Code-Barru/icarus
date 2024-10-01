@@ -124,6 +124,10 @@ async fn delete_agents(Path(id): Path<Uuid>, state: State<AppState>) -> impl Int
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
     let index = agents.iter().position(|agent| agent.uuid == id);
+    match state.io.emit("agent_delete", id) {
+        Ok(_) => (),
+        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    };
     match index {
         Some(index) => {
             agents.remove(index);

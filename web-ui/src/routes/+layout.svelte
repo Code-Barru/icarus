@@ -5,6 +5,7 @@
 	import Header from '$lib/components/header.svelte';
 	import PageTransition from '../transition.svelte';
 	import { io } from 'socket.io-client';
+	import hljs from '$lib/components/hljs.svelte';
 
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
@@ -12,6 +13,7 @@
 	import { initializeStores, Modal, Drawer, getDrawerStore } from '@skeletonlabs/skeleton';
 	import type { ModalComponent } from '@skeletonlabs/skeleton';
 	import CreateTask from '$lib/components/modals/create-task.svelte';
+	import ShellTask from '$lib/components/modals/task/shell.svelte';
 	import NavDrawer from '$lib/components/nav-drawer.svelte';
 	import {
 		addAgent,
@@ -24,8 +26,10 @@
 	} from '$lib/state.svelte';
 	import { onMount } from 'svelte';
 	import { type Agent, type Task } from '$lib/types';
+	import Hljs from '$lib/components/hljs.svelte';
 	const modalRegistry: Record<string, ModalComponent> = {
-		createTask: { ref: CreateTask }
+		createTask: { ref: CreateTask },
+		shellTask: { ref: ShellTask }
 	};
 
 	initializeStores();
@@ -82,6 +86,7 @@
 	<title>Icarus</title>
 </svelte:head>
 
+<Hljs />
 <Modal components={modalRegistry} />
 <Drawer>
 	{#if $drawerStore.id === 'nav-drawer'}

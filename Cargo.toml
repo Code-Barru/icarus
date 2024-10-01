@@ -2,9 +2,6 @@
 members = ["server", "agent"]
 resolver = "2"
 
-[profile.dev.package.askama_derive]
-opt-level = 3
-
 [profile.release]
 panic = "abort"
 opt-level = "z"

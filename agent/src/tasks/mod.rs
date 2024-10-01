@@ -6,8 +6,7 @@ use models::TaskEntry;
 use crate::State;
 
 pub mod models;
-mod powershell_command;
-mod shell_command;
+mod shell;
 
 pub async fn task_handler(
     state: Arc<Mutex<State>>,
@@ -15,7 +14,7 @@ pub async fn task_handler(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let task_clone = task.clone();
     let output = match task_clone.task_type {
-        models::TaskType::ShellCommand => {
+        models::TaskType::Shell => {
             let input = match task_clone.input {
                 Some(input) => input,
                 None => {
@@ -26,20 +25,7 @@ pub async fn task_handler(
                     return Err(err);
                 }
             };
-            shell_command::execute(&input)
-        }
-        models::TaskType::PowerShellCommand => {
-            let input = match task_clone.input {
-                Some(input) => input.clone(),
-                None => {
-                    let err: Box<dyn Error + Send + Sync> = Box::new(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        "Failed to get input for powershell command.",
-                    ));
-                    return Err(err);
-                }
-            };
-            powershell_command::execute(&input)
+            shell::execute(&input)
         }
     };
 

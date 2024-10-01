@@ -44,8 +44,7 @@ export type Task = {
 }
 
 export enum TaskType  {
-    ShellCommand = 'ShellCommand',
-    PowerShellCommand = 'PowerShellCommand'
+    Shell = 'Shell',
 }
 
 export enum TaskStatus {

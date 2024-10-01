@@ -13,12 +13,6 @@
 		<svelte:fragment slot="lead"><UserRound class="text-primary-700-200-token" /></svelte:fragment>
 		<span class="text-primary-700-200-token">Agents</span>
 	</AppRailAnchor>
-	<AppRailAnchor href="/tasks" selected={$page.url.pathname === '/tasks'} name="Tasks">
-		<svelte:fragment slot="lead"
-			><ClipboardList class="text-primary-700-200-token" /></svelte:fragment
-		>
-		<span class="text-primary-700-200-token">Tasks</span>
-	</AppRailAnchor>
 	<svelte:fragment slot="trail">
 		<AppRailAnchor href="/settings" name="Settings" selected={$page.url.pathname === '/settings'}>
 			<svelte:fragment slot="lead"><Settings class="text-primary-700-200-token" /></svelte:fragment>
