@@ -17,15 +17,20 @@
 	import NavDrawer from '$lib/components/nav-drawer.svelte';
 	import {
 		addAgent,
+		addDirectory,
+		addExplorerAgent,
 		addTask,
 		agentDisconnect,
 		setAgentState,
+		setDirectoryState,
+		setExplorerState,
 		setTaskState,
 		updateAgent,
+		updateDirectory,
 		updateTask
 	} from '$lib/state.svelte';
 	import { onMount } from 'svelte';
-	import { type Agent, type Task } from '$lib/types';
+	import { type Agent, type Directory, type Task } from '$lib/types';
 	import Hljs from '$lib/components/hljs.svelte';
 	const modalRegistry: Record<string, ModalComponent> = {
 		createTask: { ref: CreateTask },
@@ -40,14 +45,21 @@
 
 	setAgentState(data.agents);
 	setTaskState(data.tasks);
+	setDirectoryState(data.directories);
+	setExplorerState([]);
 
 	onMount(() => {
-		const url = import.meta.env.VITE_C2_URL.replace('http://', 'ws://');
+		const url = import.meta.env.VITE_C2_CLIENT_URL.replace('http://', 'ws://');
 
 		const ws = io(url);
 
+		for (const agent of data.agents) {
+			addExplorerAgent(agent.uuid, '', false);
+		}
+
 		const handleAgentCreate = (agent: Agent) => {
 			addAgent(agent);
+			addExplorerAgent(agent.uuid, '', false);
 		};
 		const handleAgentUpdate = (agent: Agent) => {
 			updateAgent(agent);
@@ -62,11 +74,22 @@
 			updateTask(task);
 		};
 
+		const handleDirectoryCreate = (directory: Directory) => {
+			addDirectory(directory);
+			console.log('Directory created', directory);
+		};
+		const handleDirectoryUpdate = (directory: Directory) => {
+			updateDirectory(directory);
+		};
+
 		ws.on('connect', () => {
 			console.log('Connected to C2');
 		});
 
 		ws.on('disconnect', () => {
+			setAgentState([]);
+			setTaskState([]);
+			setDirectoryState([]);
 			console.log('Disconnected from C2');
 		});
 		ws.on('agent_create', handleAgentCreate);
@@ -77,6 +100,8 @@
 		});
 		ws.on('task_create', handletaskCreate);
 		ws.on('task_update', handleTaskUpdate);
+		ws.on('directory_create', handleDirectoryCreate);
+		ws.on('directory_update', handleDirectoryUpdate);
 
 		ws.connect();
 	});

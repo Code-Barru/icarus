@@ -25,11 +25,6 @@
 			>
 		</li>
 		<li>
-			<a href="/tasks" class="flex flex-row py-4" on:click={handleClick}
-				><ClipboardList class="pr-1" /> Tasks</a
-			>
-		</li>
-		<li>
 			<a href="/settings" class="flex flex-row py-4" on:click={handleClick}
 				><Settings class="pr-1" /> Settings</a
 			>

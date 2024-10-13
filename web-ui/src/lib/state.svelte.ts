@@ -1,4 +1,4 @@
-import { AgentStatus, type Agent, type Task } from "./types";
+import { AgentStatus, type Agent, type Directory, type Task } from "./types";
 import { writable, type Writable } from "svelte/store";
 
 const agentState: Writable<Agent[]> = writable();
@@ -56,4 +56,57 @@ export function addTask(task: Task) {
 
 export function updateTask(task: Task) {
     getTaskState().update(tasks => tasks.map(t => t.uuid === task.uuid ? task : t));
+}
+
+const directoryState: Writable<Directory[]> = writable();
+
+export function setDirectoryState(directories: Directory[]) {
+    directoryState.set(directories);
+    return directoryState;
+}
+
+export function getDirectoryState() {
+    return directoryState;
+}
+
+export function addDirectory(directory: Directory) {
+    getDirectoryState().update(directories => [...directories, directory]);
+}
+
+export function updateDirectory(directory: Directory) {
+    getDirectoryState().update(directories => directories.map(d => (d.agent === directory.agent && d.path === directory.path) ? directory : d));
+}
+
+type ExplorerAgent = {
+    agent: string,
+    path: string,
+    viewHidden: boolean,
+}
+
+const explorerState: Writable<ExplorerAgent[]> = writable();
+
+export function setExplorerState(state: ExplorerAgent[]) {
+    explorerState.set(state);
+}
+
+export function updateAgentExplorerPath(agent: string, path: string) {
+    explorerState.update(state => {
+        return state.map(e => e.agent === agent ? { ...e, path } : e);
+    });
+}
+
+export function addExplorerAgent(agent: string, path: string, viewHidden: boolean) {
+    explorerState.update(state => {
+        return [...state, { agent, path, viewHidden }]; 
+    });
+}
+
+export function removeExplorerAgent(agent: string) {
+    explorerState.update(state => {
+        return state.filter(e => e.agent !== agent);
+    });
+}
+
+export function getExplorerState() {
+    return explorerState;
 }

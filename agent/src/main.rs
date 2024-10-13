@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 mod requests;
 mod tasks;
 use std::sync::Arc;
@@ -32,11 +34,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         remote_server: remote_server.to_string(),
     };
 
-    requests::agents::register(&mut state).await?;
-    requests::agents::register_hardware(&mut state).await?;
+    loop {
+        if let Err(e) = requests::agents::register(&mut state).await {
+            eprintln!("Failed to register: {}. Retrying in 5 seconds...", e);
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            continue;
+        }
+
+        if let Err(e) = requests::agents::register_hardware(&mut state).await {
+            eprintln!(
+                "Failed to register hardware: {}. Retrying in 5 seconds...",
+                e
+            );
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            continue;
+        }
+
+        break;
+    }
 
     loop {
         requests::agents::get_tasks(&mut state).await?;
+
         tokio::time::sleep(std::time::Duration::from_secs(TASKS_FETCH_INTERVAL)).await;
     }
 }

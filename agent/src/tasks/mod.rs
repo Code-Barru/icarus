@@ -5,6 +5,7 @@ use shared::models::{Task, TaskStatus, TaskType};
 
 use crate::State;
 
+mod explorer;
 pub mod models;
 mod shell;
 
@@ -26,6 +27,19 @@ pub async fn task_handler(
                 }
             };
             shell::execute(&input)
+        }
+        TaskType::Explorer => {
+            let input = match task_clone.input {
+                Some(input) => input,
+                None => {
+                    let err: Box<dyn Error + Send + Sync> = Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "Failed to get input for explorer command.",
+                    ));
+                    return Err(err);
+                }
+            };
+            explorer::execute(&input, &state.clone()).await
         }
     };
 

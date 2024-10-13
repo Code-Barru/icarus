@@ -4,32 +4,47 @@
 		ClipboardList,
 		Cpu,
 		EthernetPort,
+		Folders,
 		HardDrive,
+		House,
 		MemoryStick,
 		Monitor,
+		MoveLeft,
 		PcCase,
 		Router,
+		RotateCcw,
+		SquareTerminal,
 		Wifi,
 		WifiOff
 	} from 'lucide-svelte';
 	import { ProgressBar, getModalStore } from '@skeletonlabs/skeleton';
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
 	import type { Agent, Task } from '$lib/types.js';
-	import { getAgentState, getTaskState } from '$lib/state.svelte.js';
+	import {
+		getAgentState,
+		getTaskState,
+		getExplorerState,
+		updateAgentExplorerPath,
+		getDirectoryState
+	} from '$lib/state.svelte.js';
 	import type { Writable } from 'svelte/store';
 	import TaskRow from '$lib/components/tasks/task-row.svelte';
+	import ExplorerWrapper from '$lib/components/explorer/wrapper.svelte';
+	const C2_URL = `${window.location.protocol}//${window.location.hostname}:1337`;
 
 	export let data;
 
 	let agents: Writable<Agent[]> = getAgentState();
+	let taskState: Writable<Task[]> = getTaskState();
+	let explorerState = getExplorerState();
+	let directoryState = getDirectoryState();
 
 	let agent: Agent | undefined;
+	let tasks: Task[] | undefined;
 
 	$: agent = $agents.find((a) => a.uuid === data.uuid);
-
-	let taskState: Writable<Task[]> = getTaskState();
-
 	$: tasks = $taskState.filter((task) => task.agent === data.uuid);
+	$: explorer = $explorerState.find((e) => e.agent === data.uuid);
 
 	const modalStore = getModalStore();
 	const createTask: ModalSettings = {
@@ -42,6 +57,15 @@
 	};
 
 	let textColor = 'text-primary-900-50-token';
+
+	function updateExplorerPath(path: string) {
+		updateAgentExplorerPath(data.uuid, path);
+		if (!$directoryState.find((d) => d.agent === data.uuid && d.path === path)) {
+			fetch(`${C2_URL}/explorer/${data.uuid}?path=${path}`).catch((error) => {
+				console.error('Error:', error);
+			});
+		}
+	}
 </script>
 
 {#if agent}
@@ -139,73 +163,146 @@
 		</div>
 		<!-- !Left part (Infos) -->
 		<!-- Up Right Part (Tasks) -->
-		<div class="md:h-96 flex w-full text-primary-100">
-			<div
-				class="flex-grow px-2 bg-surface-100-800-token mx-4 my-2 border border-surface-800-100-token rounded-lg"
-			>
-				<div class="flex flex-row justify-between">
-					<div class="{textColor} px-2 text-2xl flex flex-row my-4 justify-start font-bold">
-						<ClipboardList class="w-8 h-8 mr-2" />
-						Tasks
+		<div class="flex flex-col">
+			<div class="md:h-96 flex w-full text-primary-100">
+				<div
+					class="flex-grow px-2 bg-surface-100-800-token mx-4 my-2 border border-surface-800-100-token rounded-lg"
+				>
+					<div class="flex flex-row justify-between">
+						<div class="{textColor} px-2 text-2xl flex flex-row my-4 justify-start font-bold">
+							<ClipboardList class="w-8 h-8 mr-2" />
+							Tasks
+						</div>
+						<button
+							class="{textColor} btn btn-sm variant-ghost-primary h-8 w-8 mt-4 mr-2"
+							on:click={() => modalStore.trigger(createTask)}>+</button
+						>
 					</div>
-					<button
-						class="{textColor} btn btn-sm variant-ghost-primary h-8 w-8 mt-4 mr-2"
-						on:click={() => modalStore.trigger(createTask)}>+</button
-					>
-				</div>
-				<hr />
-				<div class="flex flex-grow md:flex-row flex-col my-2 max-w-full md:max-h-72">
-					<div class="w-full md:min-w-36 md:w-fit h-full mx-2 pb-4 md:pb-0">
-						<div>
-							<div class="{textColor} grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-0 items-center">
-								<div class="flex flex-col items-center">
-									<div class="text-sm mt-2">Pending Tasks</div>
-									<div class="text-xl font-bold">
-										{tasks.filter((task) => task.status.toString() === 'Pending').length}
+					<hr />
+					<div class="flex flex-grow md:flex-row flex-col my-2 max-w-full md:max-h-72">
+						<div class="w-full md:min-w-36 md:w-fit h-full mx-2 pb-4 md:pb-0">
+							<div>
+								<div
+									class="{textColor} grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-0 items-center"
+								>
+									<div class="flex flex-col items-center">
+										<div class="text-sm mt-2">Pending Tasks</div>
+										<div class="text-xl font-bold">
+											{tasks.filter((task) => task.status.toString() === 'Pending').length}
+										</div>
 									</div>
-								</div>
-								<div class="flex flex-col items-center">
-									<div class="text-sm mt-2">In Progress Tasks</div>
-									<div class="text-xl font-bold text-secondary-500">
-										{tasks.filter((task) => task.status.toString() === 'InProgress').length}
+									<div class="flex flex-col items-center">
+										<div class="text-sm mt-2">In Progress Tasks</div>
+										<div class="text-xl font-bold text-secondary-500">
+											{tasks.filter((task) => task.status.toString() === 'InProgress').length}
+										</div>
 									</div>
-								</div>
-								<div class="flex flex-col items-center">
-									<div class="text-sm mt-2">Failed Tasks</div>
-									<div class="text-xl font-bold text-error-500">
-										{tasks.filter((task) => task.status.toString() === 'Failed').length}
+									<div class="flex flex-col items-center">
+										<div class="text-sm mt-2">Failed Tasks</div>
+										<div class="text-xl font-bold text-error-500">
+											{tasks.filter((task) => task.status.toString() === 'Failed').length}
+										</div>
 									</div>
-								</div>
-								<div class="flex flex-col items-center">
-									<div class="text-sm mt-2">Completed Tasks</div>
-									<div class="text-xl font-bold text-success-500">
-										{tasks.filter((task) => task.status.toString() === 'Completed').length}
+									<div class="flex flex-col items-center">
+										<div class="text-sm mt-2">Completed Tasks</div>
+										<div class="text-xl font-bold text-success-500">
+											{tasks.filter((task) => task.status.toString() === 'Completed').length}
+										</div>
 									</div>
-								</div>
-								<div class="flex flex-col items-center">
-									<div class="text-sm mt-2">Total Tasks:</div>
-									<div class="text-xl font-bold">{agent.tasks.length}</div>
+									<div class="flex flex-col items-center">
+										<div class="text-sm mt-2">Total Tasks:</div>
+										<div class="text-xl font-bold">{agent.tasks.length}</div>
+									</div>
 								</div>
 							</div>
 						</div>
+						<hr class=" md:hidden py-2" />
+						<span class="hidden md:block divider-vertical h-72 class m-0 p-0"></span>
+						<div class="{textColor} w-full mx-2 table-container overflow-x-auto">
+							<table class="table table-fixed table-hover min-w-fit">
+								<thead class="sticky top-0 z-10">
+									<tr>
+										<th>Task</th>
+										<th>Status</th>
+										<th class="hidden md:table-cell">Created At</th>
+										<th class="hidden md:table-cell">Completed At</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each tasks as task}
+										<TaskRow {task} />{/each}
+								</tbody>
+							</table>
+						</div>
 					</div>
-					<hr class=" md:hidden py-2" />
-					<span class="hidden md:block divider-vertical h-72 class m-0 p-0"></span>
-					<div class="{textColor} w-full mx-2 table-container overflow-x-auto">
-						<table class="table table-fixed table-hover min-w-fit">
-							<thead class="sticky top-0 z-10">
-								<tr>
-									<th>Task</th>
-									<th>Status</th>
-									<th class="hidden md:table-cell">Created At</th>
-									<th class="hidden md:table-cell">Completed At</th>
-								</tr>
-							</thead>
-							<tbody>
-								{#each tasks as task}
-									<TaskRow {task} />{/each}
-							</tbody>
-						</table>
+				</div>
+			</div>
+			<div class="flex lg:flex-row flex-col lg:h-full">
+				<div class="lg:h-full flex-grow flex w-full lg:w-8/12 text-primary-100">
+					<div
+						class="flex-grow px-2 bg-surface-100-800-token mx-4 my-2 border border-surface-800-100-token rounded-lg"
+					>
+						<div class="{textColor} px-2 text-2xl flex flex-row my-4 justify-between font-bold">
+							<div class="flex flex-row">
+								<Folders class="w-8 h-8 mr-2" />
+								Explorer
+							</div>
+							<div class="flex flex-rox">
+								{#if explorer && explorer.path !== ''}
+									<button
+										on:click={() =>
+											updateExplorerPath(explorer.path.split('/').slice(0, -1).join('/'))}
+									>
+										<MoveLeft class="w-8 h-8 mr-2" />
+									</button>
+								{/if}
+								<button on:click={() => updateAgentExplorerPath(agent.uuid, '')}>
+									<House class="w-8 h-8 mr-2" />
+								</button>
+							</div>
+						</div>
+						<hr />
+						<div class="my-2 mx-2">
+							{#if explorer && explorer.path !== ''}
+								<div class="flex flex-row">
+									<HardDrive class="w-8 h-8 my-2 mr-2" />
+									{explorer.path}
+								</div>
+								<div class="max-h-96 my-3 overflow-y-auto">
+									<ExplorerWrapper path={explorer.path} agent={agent.uuid} />
+								</div>
+							{:else}
+								<div class="flex flex-col justify-center text-xl text-gray-200 font-semibold">
+									Select a disk to explore
+									<div class="grid grid-cols-2 gap-4 mt-4">
+										{#each agent.hardware.disks as disk}
+											<button
+												class="flex flex-col items-center text-primary-100 my-2 p-2 bg-surface-100-800-token rounded-lg"
+												on:click={() => updateExplorerPath(disk.mount_point)}
+											>
+												<HardDrive class="w-8 h-8 mr-2" />
+
+												{disk.name} ({disk.mount_point})
+											</button>
+										{/each}
+									</div>
+								</div>
+							{/if}
+						</div>
+					</div>
+				</div>
+				<div class="h-96 lg:h-full flex-grow flex w-full lg:w-4/12 text-primary-100">
+					<div
+						class="flex-grow px-2 bg-surface-100-800-token mx-4 my-2 border border-surface-800-100-token rounded-lg"
+					>
+						<div class="{textColor} px-2 text-2xl flex flex-row my-4 justify-start font-bold">
+							<SquareTerminal class="w-8 h-8 mr-2" />
+							Reverse Shell
+						</div>
+						<hr />
+						<div class="flex justify-center text-xl text-gray-200 font-semibold">
+							Not done yet :(
+						</div>
 					</div>
 				</div>
 			</div>

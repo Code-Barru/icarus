@@ -8,7 +8,7 @@ use axum::{
     Json, Router,
 };
 use serde_json::json;
-use shared::models::{Task, TaskStatus};
+use shared::models::{Task, TaskStatus, TaskType};
 use uuid::Uuid;
 
 async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
@@ -16,6 +16,10 @@ async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
         Ok(tasks) => tasks.clone(),
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
+    let tasks: Vec<Task> = tasks
+        .into_iter()
+        .filter(|task| task.task_type != TaskType::Explorer)
+        .collect();
     Json(tasks).into_response()
 }
 
@@ -66,6 +70,13 @@ async fn create_tasks(
         },
         completed_at: 0,
     };
+    if task.task_type == TaskType::Explorer && cfg!(not(debug_assertions)) {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({"error": "Explorer tasks are not allowed"})),
+        )
+            .into_response();
+    }
     match state.io.emit("task_create", task.clone()) {
         Ok(_) => (),
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),

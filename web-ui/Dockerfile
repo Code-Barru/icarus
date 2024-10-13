@@ -5,6 +5,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm clean-install
 
+ENV VITE_C2_SERVER_UR=http://c2:1337
+
 COPY . .
 RUN npm run build
 RUN npm prune --production

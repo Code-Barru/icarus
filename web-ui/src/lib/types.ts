@@ -53,3 +53,17 @@ export enum TaskStatus {
     Completed = 'Completed',
     Failed = 'Failed'
 }
+
+export type Directory = {
+    agent: string;
+    path: string;
+    files: File[];
+}
+
+export type File = {
+    name: string;
+    size: number;
+    is_dir: boolean;
+    created_at: string;
+    modified_at: string;
+}

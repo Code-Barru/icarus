@@ -16,6 +16,7 @@ pub struct Task {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub enum TaskType {
     Shell,
+    Explorer,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
@@ -61,4 +62,20 @@ pub struct AgentDisk {
     pub used: u64,
     pub name: String,
     pub mount_point: String,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct Directory {
+    pub agent: Uuid,
+    pub path: String,
+    pub files: Vec<File>,
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct File {
+    pub name: String,
+    pub size: u64,
+    pub is_dir: bool,
+    pub created_at: i64,
+    pub modified_at: i64,
 }

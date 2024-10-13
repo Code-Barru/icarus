@@ -26,7 +26,7 @@
 
 <tr class="cursor-pointer" on:click={openModal}>
 	{#if task.task_type.toString() === 'Shell'}
-		<td>{truncate(task.input, 35)}</td>
+		<td>{truncate(task.input, 15)}</td>
 	{:else}
 		<td>{task.task_type}</td>
 	{/if}

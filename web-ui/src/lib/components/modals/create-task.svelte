@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { SvelteComponent } from 'svelte';
 	import { TaskType } from '$lib/types';
-	const C2_URL = import.meta.env.VITE_C2_URL as string;
+	const C2_URL = `${window.location.protocol}//${window.location.hostname}:1337`;
 	// Stores
 	import { getModalStore } from '@skeletonlabs/skeleton';
 

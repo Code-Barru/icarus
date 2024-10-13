@@ -4,12 +4,13 @@ use std::{
 };
 
 mod agents;
+mod explorer;
 mod tasks;
 mod utils;
 mod ws;
 
 use axum::Router;
-use shared::models::{Agent, Task};
+use shared::models::{Agent, Directory, Task};
 
 use http::{header, Method};
 use socketioxide::SocketIo;
@@ -25,6 +26,7 @@ static AGENTS_HEALTH_CHECK_TIMEOUT: u64 = 10;
 #[derive(Clone)]
 struct AppState {
     agents: Arc<Mutex<Vec<Agent>>>,
+    directories: Arc<Mutex<Vec<Directory>>>,
     tasks: Arc<Mutex<Vec<Task>>>,
     io: SocketIo,
 }
@@ -36,6 +38,7 @@ async fn main() {
 
     let state = AppState {
         agents: Arc::new(Mutex::new(Vec::new())),
+        directories: Arc::new(Mutex::new(Vec::new())),
         tasks: Arc::new(Mutex::new(Vec::new())),
         io,
     };
@@ -59,6 +62,7 @@ async fn main() {
     let app = Router::new()
         .nest("/agents", agents::services::get_router(state.clone()))
         .nest("/tasks", tasks::services::get_router(state.clone()))
+        .nest("/explorer", explorer::services::get_router(state.clone()))
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))

@@ -82,13 +82,21 @@ pub async fn register_hardware(state: &mut State) -> Result<(), Box<dyn std::err
 pub async fn get_tasks(state: &mut State) -> Result<(), Box<dyn std::error::Error>> {
     let http = state.http.lock().await;
 
-    let request = http
+    let request = match http
         .get(format!(
             "{}/agents/{}/my_tasks",
             &state.remote_server, state.uuid
         ))
         .send()
-        .await?;
+        .await
+    {
+        Ok(response) => response,
+        Err(e) => {
+            eprintln!("Failed to send request: {}", e);
+            return Ok(());
+        }
+    };
+
     let json = request.json::<Vec<Task>>().await?;
 
     if json.len() == 0 {
