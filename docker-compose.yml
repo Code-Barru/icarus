@@ -2,7 +2,7 @@
 services:
   c2:
     build:
-      context: ./server
+      context: .
       dockerfile: Dockerfile
     ports:
       - "1337:1337"
@@ -11,6 +11,4 @@ services:
       context: ./web-ui
       dockerfile: Dockerfile
     ports:
-      - "8081:3000"
-    environment:
-      - VITE_C2_URl=http://c2:1337 
+      - "8081:3000" 

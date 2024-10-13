@@ -2,8 +2,13 @@ FROM rust:slim-buster AS builder
 
 WORKDIR /app
 
-COPY . .
-RUN cargo build --release
+COPY ./server ./server
+COPY ./shared ./shared
+COPY ./agent ./agent
+COPY Cargo.toml .
+COPY Cargo.lock .
+
+RUN cargo build --release -p server
 RUN cp target/release/server /usr/bin/server
 
 FROM debian:buster-slim AS runtime
