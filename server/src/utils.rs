@@ -1,16 +1,13 @@
-use std::sync::{Arc, Mutex};
-
 use axum::{http::StatusCode, response::IntoResponse};
 use socketioxide::SocketIo;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use tracing::info;
 
 use shared::models::{Agent, AgentStatus};
 
 pub async fn agents_health_check(agents: &mut Arc<Mutex<Vec<Agent>>>, io: &mut SocketIo) {
-    let mut agents = match agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return,
-    };
+    let mut agents = agents.lock().await;
     if agents.is_empty() {
         return;
     }

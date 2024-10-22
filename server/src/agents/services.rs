@@ -15,15 +15,12 @@ use serde_json::json;
 use uuid::Uuid;
 
 async fn get_agents(state: State<AppState>) -> impl IntoResponse {
-    let agents = state.agents.lock().unwrap();
+    let agents = state.agents.lock().await;
     Json(agents.clone()).into_response()
 }
 
 async fn get_single_agent(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoResponse {
-    let agents = match state.agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let agents = state.agents.lock().await;
     let agent = agents.iter().find(|agent| agent.uuid == id);
     match agent {
         Some(agent) => Json(agent.clone()).into_response(),
@@ -32,23 +29,18 @@ async fn get_single_agent(Path(id): Path<Uuid>, state: State<AppState>) -> impl 
 }
 
 async fn get_my_tasks(state: State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    let mut agents = match state.agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let mut agents = state.agents.lock().await;
     let agent = match agents.iter_mut().find(|agent| agent.uuid == id) {
         Some(agent) => agent,
         None => return StatusCode::NOT_FOUND.into_response(),
     };
     agent.last_seen_at = chrono::Utc::now().timestamp();
 
-    let mut tasks = match state.tasks.lock() {
-        Ok(tasks) => tasks,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let mut tasks = state.tasks.lock().await;
     let mut tasks = tasks
         .iter_mut()
         .filter(|task| task.agent == id && task.status == TaskStatus::Pending);
+
     let mut tasks_reponse = vec![];
 
     for task in &mut tasks {
@@ -69,10 +61,7 @@ async fn create_agent_hardware(
     Path(id): Path<Uuid>,
     Json(payload): Json<AgentHardware>,
 ) -> impl IntoResponse {
-    let mut agents = match state.agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let mut agents = state.agents.lock().await;
     let agent = agents.iter_mut().find(|agent| agent.uuid == id);
     match agent {
         Some(agent) => {
@@ -96,10 +85,7 @@ async fn create_agents(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     Json(payload): Json<CreateAgent>,
 ) -> impl IntoResponse {
-    let mut agents = match state.agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let mut agents = state.agents.lock().await;
 
     let agent = Agent {
         uuid: Uuid::new_v4(),
@@ -117,10 +103,7 @@ async fn create_agents(
 }
 
 async fn delete_agents(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoResponse {
-    let mut agents = match state.agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let mut agents = state.agents.lock().await;
     let index = agents.iter().position(|agent| agent.uuid == id);
     match state.io.emit("agent_delete", id) {
         Ok(_) => (),
@@ -140,20 +123,14 @@ async fn delete_agents(Path(id): Path<Uuid>, state: State<AppState>) -> impl Int
 }
 
 async fn get_tasks(Path(id): Path<Uuid>, state: State<AppState>) -> impl IntoResponse {
-    let agents = match state.agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let agents = state.agents.lock().await;
     let agent = agents.iter().find(|agent| agent.uuid == id);
     match agent {
         Some(agent) => agent,
         None => return StatusCode::NOT_FOUND.into_response(),
     };
 
-    let tasks = match state.tasks.lock() {
-        Ok(tasks) => tasks,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let tasks = state.tasks.lock().await;
     let tasks = tasks
         .iter()
         .filter(|task| task.agent == id)

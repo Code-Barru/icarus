@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getDirectoryState, updateAgentExplorerPath } from '$lib/state.svelte';
 	import { File, Folder } from 'lucide-svelte';
-	import type { Directory, File as FileType } from '$lib/types.js';
+	import type { Directory } from '$lib/types.js';
 
 	const C2_URL = `${window.location.protocol}//${window.location.hostname}:1337`;
 
@@ -18,15 +18,11 @@
 			path = path.slice(0, -1);
 		}
 		let fullPath = `${path}/${file_name}`;
-		console.log('Updating path:', fullPath);
 		updateAgentExplorerPath(agent, fullPath);
 		if (!$directoryState.find((d) => d.agent === agent && d.path === fullPath)) {
-			console.log('Fetching:', `${C2_URL}/explorer/${agent}?path=${fullPath}`);
 			fetch(encodeURI(`${C2_URL}/explorer/${agent}?path=${fullPath}`)).catch((error) => {
 				console.error('Error:', error);
 			});
-		} else {
-			console.log('Path already exists:', path);
 		}
 	}
 </script>

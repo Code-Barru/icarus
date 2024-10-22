@@ -30,7 +30,7 @@
 	import type { Writable } from 'svelte/store';
 	import TaskRow from '$lib/components/tasks/task-row.svelte';
 	import ExplorerWrapper from '$lib/components/explorer/wrapper.svelte';
-	const C2_URL = `${window.location.protocol}//${window.location.hostname}:1337`;
+	const C2_URL = `http://localhost:1337`;
 
 	export let data;
 

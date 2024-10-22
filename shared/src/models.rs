@@ -17,6 +17,8 @@ pub struct Task {
 pub enum TaskType {
     Shell,
     Explorer,
+    FileDownload,
+    FileUpload,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]

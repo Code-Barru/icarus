@@ -14,14 +14,14 @@ Web interface written using SvelteKit and Tailwindcss!
 ### TODO
 
 - [ ] 📊 Charts about tasks and Agents
-- [ ] 👾 ReverShell in web app
 
 ### DOING
 
-- [ ] 📂 File Explorer
+- [ ] 👾 ReverShell in web app
 
 ### DONE
 
+- [x] 📂 File Explorer
 - [x] 📄 Task Interface
 - [x] 🧠 WebSockets (live update)
 - [x] 📃 Task queuing
@@ -33,14 +33,14 @@ Web interface written using SvelteKit and Tailwindcss!
 
 - [ ] 💾 Persistence
 - [ ] 🕐 Staged Loading
-- [ ] `>_` Reverse Shell
 
 ### DOING
 
-- [ ] 📁 Upload/Download payload
+- [ ] `>_` Reverse Shell
 
 ### DONE
 
+- [ ] ~~📁 Upload/Download payload~~
 - [x] 📂 File Explorer
 - [x] `>_` Powershell Command
 - [x] `>_` Shell Command

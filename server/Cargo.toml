@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = { version = "0.7.5", features = ["macros"] }
+axum = { version = "0.7.5", features = ["macros", "multipart"] }
 tokio = { version = "1.39.3", features = ["full"] }
 
 chrono = "0.4.38"
@@ -19,3 +19,4 @@ socketioxide = { version = "0.14.1", features = ["state"] }
 tower = "0.5.1"
 
 shared = { path = "../shared" }
+tokio-util = { version = "0.7.12", features = ["io"] }

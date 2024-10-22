@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-reqwest = { version = "0.12.7", features = ["json"] }
+reqwest = { version = "0.12.7", features = ["json", "multipart", "stream"] }
 tokio = { version = "1.39.3", features = ["full"] }
 
 uuid = { version = "1.10.0", features = ["v4", "serde"] }
@@ -13,3 +13,4 @@ serde_json = "1.0.127"
 sysinfo = { version = "0.31.4", features = ["system"] }
 rand = "0.8.5"
 shared = { path = "../shared" }
+tokio-util = { version = "0.7.12", features = ["codec"] }

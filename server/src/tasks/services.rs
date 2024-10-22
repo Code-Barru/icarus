@@ -12,22 +12,18 @@ use shared::models::{Task, TaskStatus, TaskType};
 use uuid::Uuid;
 
 async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
-    let tasks = match state.tasks.lock() {
-        Ok(tasks) => tasks.clone(),
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let tasks = state.tasks.lock().await;
     let tasks: Vec<Task> = tasks
+        .clone()
         .into_iter()
         .filter(|task| task.task_type != TaskType::Explorer)
         .collect();
+
     Json(tasks).into_response()
 }
 
 async fn get_single_task(state: State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
-    let tasks = match state.tasks.lock() {
-        Ok(tasks) => tasks,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let tasks = state.tasks.lock().await;
     let task = tasks.iter().find(|task| task.uuid == id);
     match task {
         Some(task) => Json(task).into_response(),
@@ -39,10 +35,7 @@ async fn create_tasks(
     state: State<AppState>,
     Json(payload): Json<CreateTask>,
 ) -> impl IntoResponse {
-    let mut agents = match state.agents.lock() {
-        Ok(agents) => agents,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let mut agents = state.agents.lock().await;
     let agent = match agents.iter_mut().find(|agent| agent.uuid == payload.agent) {
         Some(agent) => agent,
         None => {
@@ -82,10 +75,10 @@ async fn create_tasks(
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
     agent.tasks.push(task.uuid);
-    match state.tasks.lock() {
-        Ok(mut tasks) => tasks.push(task.clone()),
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    }
+
+    let mut tasks = state.tasks.lock().await;
+    tasks.push(task.clone());
+
     (StatusCode::CREATED, Json(task)).into_response()
 }
 
@@ -94,10 +87,7 @@ async fn update_tasks(
     state: State<AppState>,
     Json(payload): Json<UpdateTask>,
 ) -> impl IntoResponse {
-    let mut tasks = match state.tasks.lock() {
-        Ok(tasks) => tasks,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    let mut tasks = state.tasks.lock().await;
 
     let task = match tasks.iter_mut().find(|task| task.uuid == id) {
         Some(task) => task,

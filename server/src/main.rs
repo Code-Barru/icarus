@@ -1,8 +1,5 @@
-use std::{
-    net::SocketAddr,
-    sync::{Arc, Mutex},
-};
-
+use std::{net::SocketAddr, sync::Arc};
+use tokio::sync::Mutex;
 mod agents;
 mod explorer;
 mod tasks;
@@ -14,6 +11,7 @@ use shared::models::{Agent, Directory, Task};
 
 use http::{header, Method};
 use socketioxide::SocketIo;
+use std::fs;
 use tokio::net::TcpListener;
 use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
@@ -84,6 +82,15 @@ async fn main() {
             return;
         }
     };
+
+    // create upload & download directories if they don't exist
+    if let Err(e) = fs::create_dir_all("upload") {
+        eprintln!("Failed to create 'upload' directory: {}", e);
+    }
+
+    if let Err(e) = fs::create_dir_all("download") {
+        eprintln!("Failed to create 'download' directory: {}", e);
+    }
 
     // setup agents health check
     tokio::spawn(async move {

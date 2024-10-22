@@ -5,9 +5,11 @@ use shared::models::{Task, TaskStatus, TaskType};
 
 use crate::State;
 
+mod download;
 mod explorer;
 pub mod models;
 mod shell;
+mod upload;
 
 pub async fn task_handler(
     state: Arc<Mutex<State>>,
@@ -40,6 +42,32 @@ pub async fn task_handler(
                 }
             };
             explorer::execute(&input, &state.clone()).await
+        }
+        TaskType::FileDownload => {
+            let input = match task_clone.input {
+                Some(input) => input,
+                None => {
+                    let err: Box<dyn Error + Send + Sync> = Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "Failed to get input for file download command.",
+                    ));
+                    return Err(err);
+                }
+            };
+            download::execute(&input, &state.clone(), &task.clone()).await
+        }
+        TaskType::FileUpload => {
+            let input = match task_clone.input {
+                Some(input) => input,
+                None => {
+                    let err: Box<dyn Error + Send + Sync> = Box::new(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "Failed to get input for file upload command.",
+                    ));
+                    return Err(err);
+                }
+            };
+            upload::execute(&input, &state.clone(), &task.clone()).await
         }
     };
 
