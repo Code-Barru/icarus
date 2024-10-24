@@ -45,6 +45,9 @@ export type Task = {
 
 export enum TaskType  {
     Shell = 'Shell',
+    Explorer = 'Explorer',
+    FileUpload = 'FileUpload',
+    FileDownload = 'FileDownload'
 }
 
 export enum TaskStatus {
@@ -57,7 +60,7 @@ export enum TaskStatus {
 export type Directory = {
     agent: string;
     path: string;
-    files: File[];
+    files: File[] | undefined;
 }
 
 export type File = {

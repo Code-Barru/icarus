@@ -108,10 +108,10 @@ async fn create_directory(
             return (StatusCode::NOT_FOUND, Json("Agent not found")).into_response();
         }
     };
-
     let directory = Directory {
         agent: agent.uuid,
-        ..payload.clone()
+        path: payload.path.clone().replace("\\", ""),
+        files: payload.files.clone(),
     };
 
     let mut directories = state.directories.lock().await;

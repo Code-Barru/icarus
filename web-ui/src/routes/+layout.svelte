@@ -5,7 +5,6 @@
 	import Header from '$lib/components/header.svelte';
 	import PageTransition from '../transition.svelte';
 	import { io } from 'socket.io-client';
-	import hljs from '$lib/components/hljs.svelte';
 
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
@@ -30,7 +29,7 @@
 		updateTask
 	} from '$lib/state.svelte';
 	import { onMount } from 'svelte';
-	import { type Agent, type Directory, type Task } from '$lib/types';
+	import { TaskStatus, TaskType, type Agent, type Directory, type Task } from '$lib/types';
 	import Hljs from '$lib/components/hljs.svelte';
 	const modalRegistry: Record<string, ModalComponent> = {
 		createTask: { ref: CreateTask },
@@ -72,11 +71,29 @@
 		};
 		const handleTaskUpdate = (task: Task) => {
 			updateTask(task);
+			if (task.task_type === TaskType.FileUpload && task.status === TaskStatus.Completed) {
+				let path = task.input.replace(/\/[^\/]*$/, '');
+				fetch(
+					`${import.meta.env.VITE_C2_CLIENT_URL}/explorer/${task.agent}?path=${path}&force=true`
+				)
+					.then((data) => {
+						console.log('Updated');
+					})
+					.catch((error) => {
+						console.error('Error:', error);
+					});
+			}
+			if (task.task_type === TaskType.Explorer && task.status === TaskStatus.Failed) {
+				addDirectory({
+					agent: task.agent,
+					path: task.input,
+					files: undefined
+				});
+			}
 		};
 
 		const handleDirectoryCreate = (directory: Directory) => {
 			addDirectory(directory);
-			console.log('Directory created', directory);
 		};
 		const handleDirectoryUpdate = (directory: Directory) => {
 			updateDirectory(directory);

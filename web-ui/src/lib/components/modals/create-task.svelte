@@ -2,23 +2,17 @@
 	import type { SvelteComponent } from 'svelte';
 	import { TaskType } from '$lib/types';
 	const C2_URL = `${window.location.protocol}//${window.location.hostname}:1337`;
-	// Stores
 	import { getModalStore } from '@skeletonlabs/skeleton';
-
-	// Props
-	/** Exposes parent props to this component. */
 	export let parent: SvelteComponent;
 
 	const modalStore = getModalStore();
 
-	// Form Data
 	const formData = {
 		agent: $modalStore[0].meta.agent,
 		task_type: '',
 		input: ''
 	};
 
-	// We've created a custom submit function to pass the response and close the modal.
 	function onFormSubmit(): void {
 		fetch(`${C2_URL}/tasks`, {
 			method: 'POST',
@@ -36,7 +30,6 @@
 			});
 	}
 
-	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
 	const cForm = 'border border-surface-500 p-4 space-y-4 rounded-container-token';

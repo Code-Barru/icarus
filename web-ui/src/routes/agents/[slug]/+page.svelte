@@ -19,7 +19,7 @@
 	} from 'lucide-svelte';
 	import { ProgressBar, getModalStore } from '@skeletonlabs/skeleton';
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
-	import type { Agent, Task } from '$lib/types.js';
+	import { TaskType, type Agent, type Task } from '$lib/types.js';
 	import {
 		getAgentState,
 		getTaskState,
@@ -59,9 +59,22 @@
 	let textColor = 'text-primary-900-50-token';
 
 	function updateExplorerPath(path: string) {
+		path = path.replace('\\', '/');
 		updateAgentExplorerPath(data.uuid, path);
 		if (!$directoryState.find((d) => d.agent === data.uuid && d.path === path)) {
 			fetch(`${C2_URL}/explorer/${data.uuid}?path=${path}`).catch((error) => {
+				console.error('Error:', error);
+			});
+		}
+	}
+
+	function explorerBack() {
+		//@ts-ignore
+		const path = explorer.path.split('/');
+		path.pop();
+		updateAgentExplorerPath(data.uuid, path.join('/'));
+		if (!$directoryState.find((d) => d.agent === data.uuid && d.path === path.join('/'))) {
+			fetch(`${C2_URL}/explorer/${data.uuid}?path=${path.join('/')}`).catch((error) => {
 				console.error('Error:', error);
 			});
 		}
@@ -230,7 +243,10 @@
 								</thead>
 								<tbody>
 									{#each tasks as task}
-										<TaskRow {task} />{/each}
+										{#if task.task_type !== TaskType.Explorer}
+											<TaskRow {task} />
+										{/if}
+									{/each}
 								</tbody>
 							</table>
 						</div>
@@ -248,11 +264,8 @@
 								Explorer
 							</div>
 							<div class="flex flex-rox">
-								{#if explorer && explorer.path !== ''}
-									<button
-										on:click={() =>
-											updateExplorerPath(explorer.path.split('/').slice(0, -1).join('/'))}
-									>
+								{#if explorer && explorer.path.length > 0}
+									<button on:click={() => explorerBack()}>
 										<MoveLeft class="w-8 h-8 mr-2" />
 									</button>
 								{/if}
@@ -263,7 +276,7 @@
 						</div>
 						<hr />
 						<div class="my-2 mx-2">
-							{#if explorer && explorer.path !== ''}
+							{#if explorer && explorer.path.length > 0}
 								<div class="flex flex-row">
 									<HardDrive class="w-8 h-8 my-2 mr-2" />
 									{explorer.path}
