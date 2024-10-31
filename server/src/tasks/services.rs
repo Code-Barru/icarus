@@ -24,7 +24,7 @@ async fn get_tasks(state: State<AppState>) -> impl IntoResponse {
 
 async fn get_single_task(state: State<AppState>, Path(id): Path<Uuid>) -> impl IntoResponse {
     let tasks = state.tasks.lock().await;
-    let task = tasks.iter().find(|task| task.uuid == id);
+    let task: Option<&Task> = tasks.iter().find(|task| task.uuid == id);
     match task {
         Some(task) => Json(task).into_response(),
         None => StatusCode::NOT_FOUND.into_response(),

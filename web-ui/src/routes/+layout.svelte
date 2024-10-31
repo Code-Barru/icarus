@@ -22,6 +22,7 @@
 		agentDisconnect,
 		setAgentState,
 		setDirectoryState,
+		setDownloadState,
 		setExplorerState,
 		setTaskState,
 		updateAgent,
@@ -46,6 +47,7 @@
 	setTaskState(data.tasks);
 	setDirectoryState(data.directories);
 	setExplorerState([]);
+	setDownloadState([]);
 
 	onMount(() => {
 		const url = import.meta.env.VITE_C2_CLIENT_URL.replace('http://', 'ws://');
@@ -67,10 +69,10 @@
 			agentDisconnect(uuid);
 		};
 		const handletaskCreate = (task: Task) => {
+			if (task.task_type === TaskType.Explorer) return;
 			addTask(task);
 		};
 		const handleTaskUpdate = (task: Task) => {
-			updateTask(task);
 			if (task.task_type === TaskType.FileUpload && task.status === TaskStatus.Completed) {
 				let path = task.input.replace(/\/[^\/]*$/, '');
 				fetch(
@@ -90,6 +92,20 @@
 					files: undefined
 				});
 			}
+			if (task.task_type == TaskType.Explorer) return;
+			if (task.task_type == TaskType.FileDownload) {
+				setTimeout(() => {
+					const a = document.createElement('a');
+
+					a.href = `${import.meta.env.VITE_C2_CLIENT_URL}/explorer/${task.uuid}/download`;
+					a.target = '_blank';
+					a.download = task.input.split('/')[-1];
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+				}, 1000);
+			}
+			updateTask(task);
 		};
 
 		const handleDirectoryCreate = (directory: Directory) => {

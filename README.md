@@ -13,15 +13,22 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
+- [ ] 📸 Screenshots
 - [ ] 📊 Charts about tasks and Agents
+- [ ] 👾 ReverShell in web app
 
 ### DOING
 
-- [ ] 👾 ReverShell in web app
+- [ ] 🔴 Notification Toasts
 
 ### DONE
 
 - [x] 📂 File Explorer
+
+  - [x] 📁 Download (Doesn't auto download, will be done after notification toasts)
+  - [x] 📁 Navigation
+  - [x] 📁 Upload
+
 - [x] 📄 Task Interface
 - [x] 🧠 WebSockets (live update)
 - [x] 📃 Task queuing
@@ -31,16 +38,20 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
-- [ ] 💾 Persistence
-- [ ] 🕐 Staged Loading
+- [ ] `>_` Reverse Shell
+- [ ] 🔌 Use TCP for task retrieving
 
 ### DOING
 
-- [ ] `>_` Reverse Shell
+- [ ] 💾 Persistence
+  - [ ] 🕑 Staged Loading
+  - [ ] 🥾 Starts on boot
+  - [ ] 🔄 Retain agents info on server restart
 
 ### DONE
 
-- [ ] ~~📁 Upload/Download payload~~
+- [x] 📁 Download Files
+- [x] 📁 Upload files
 - [x] 📂 File Explorer
 - [x] `>_` Powershell Command
 - [x] `>_` Shell Command

@@ -243,9 +243,7 @@
 								</thead>
 								<tbody>
 									{#each tasks as task}
-										{#if task.task_type !== TaskType.Explorer}
-											<TaskRow {task} />
-										{/if}
+										<TaskRow {task} />
 									{/each}
 								</tbody>
 							</table>

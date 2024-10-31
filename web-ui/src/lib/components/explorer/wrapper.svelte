@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { getDirectoryState, updateAgentExplorerPath } from '$lib/state.svelte';
-	import { File, Folder, Upload } from 'lucide-svelte';
+	import { Ellipsis, File, Folder, Upload } from 'lucide-svelte';
 	import type { Directory } from '$lib/types.js';
+	import FileOption from '$lib/components/explorer/file-option.svelte';
 
 	const C2_URL = `${window.location.protocol}//${window.location.hostname}:1337`;
 
@@ -96,20 +97,30 @@
 					{#each directory.files as file}
 						{#if file.is_dir}
 							<button
-								class="flex flex-row items-center text-primary-100 hover:bg-primary-800 hover:bg-opacity-50 py-2 px-2 rounded"
-								on:click={() => updateExplorerPath(file.name)}
+								class="group flex justify-between text-primary-100 hover:bg-primary-800 hover:bg-opacity-50 py-2 px-2 rounded"
+								on:dblclick={() => updateExplorerPath(file.name)}
 							>
-								<Folder class="w-8 h-8 mr-2" />
-								<span class="text-primary-100">{file.name}</span>
+								<div class="flex flex-row items-center">
+									<Folder class="w-8 h-8 mr-2" />
+									<span class="text-primary-100">{file.name}</span>
+								</div>
+								<div class="hidden group-hover:block my-auto">
+									<Ellipsis />
+								</div>
 							</button>
 						{:else}
 							<div
-								class="flex flex-row items-center text-primary-100 py-2 px-2 hover:bg-primary-800 hover:bg-opacity-50 rounded"
+								class="group flex justify-between text-primary-100 py-2 px-2 hover:bg-primary-800 hover:bg-opacity-50 rounded"
 							>
-								<File class="w-8 h-8 mr-2" />
-								<span class="text-primary-100"
-									>{file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name}</span
-								>
+								<div class="flex flex-row items-center">
+									<File class="w-8 h-8 mr-2" />
+									<span class="text-primary-100"
+										>{file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name}</span
+									>
+								</div>
+								<div class="hidden group-hover:block my-auto">
+									<FileOption path={path + '/' + file.name} {agent} />
+								</div>
 							</div>
 						{/if}
 					{/each}

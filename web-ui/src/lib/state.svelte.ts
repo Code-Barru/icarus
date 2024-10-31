@@ -110,3 +110,17 @@ export function removeExplorerAgent(agent: string) {
 export function getExplorerState() {
     return explorerState;
 }
+
+const downloadState: Writable<string[]> = writable();
+
+export function setDownloadState(state: string[]) {
+    downloadState.set(state);
+}
+
+export function addDownloadState(uuid: string) {
+    downloadState.update(state => [...state, uuid]);
+}
+
+export function removeDownloadState(uuid: string) {
+    downloadState.update(state => state.filter(u => u !== uuid));
+}
