@@ -13,7 +13,6 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
-- [ ] 📸 Screenshots
 - [ ] 📊 Charts about tasks and Agents
 - [ ] 👾 ReverShell in web app
 
@@ -38,6 +37,7 @@ Web interface written using SvelteKit and Tailwindcss!
 
 ### TODO
 
+- [ ] 📸 Screenshots
 - [ ] `>_` Reverse Shell
 - [ ] 🔌 Use TCP for task retrieving
 
@@ -47,6 +47,7 @@ Web interface written using SvelteKit and Tailwindcss!
   - [ ] 🕑 Staged Loading
   - [ ] 🥾 Starts on boot
   - [ ] 🔄 Retain agents info on server restart
+  - [ ] ⬆ Automatic update
 
 ### DONE
 
