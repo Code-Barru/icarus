@@ -1,0 +1,13 @@
+[workspace]
+members = [ "agent","server", "shared", "stage-1", "stage-2"]
+resolver = "2"
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+panic = "abort"
+opt-level = "z"
+strip = true
+codegen-units = 1
+lto = true
