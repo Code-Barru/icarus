@@ -1,0 +1,20 @@
+meta {
+  name: Create Network Data
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/agents/{{agent_uuid}}/network
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "hostname": "DESKTOP-91VVSlU",
+    "ipv4": "82.65.111.80",
+    "ipv6": "Not detected",
+    "mac": "fe80::d98:f61a:a13e:73915"
+  }
+}

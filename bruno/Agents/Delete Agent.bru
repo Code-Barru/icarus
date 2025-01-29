@@ -1,0 +1,11 @@
+meta {
+  name: Delete Agent
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{base_url}}/agents/{{agent_uuid}}
+  body: none
+  auth: none
+}

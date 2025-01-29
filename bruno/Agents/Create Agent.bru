@@ -1,0 +1,17 @@
+meta {
+  name: Create Agent
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/agents/register
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (res.status == 201) {
+    bru.setEnvVar("agent_uuid", res.body.id)
+  }
+}

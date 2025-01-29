@@ -1,0 +1,11 @@
+meta {
+  name: Update Network Data
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{base_url}}/agents/{{agent_uuid}}/network
+  body: none
+  auth: none
+}

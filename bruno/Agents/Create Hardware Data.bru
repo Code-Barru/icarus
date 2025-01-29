@@ -1,0 +1,19 @@
+meta {
+  name: Create Hardware Data
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base_url}}/agents/{{agent_uuid}}/hardware
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "cpu": "AMD Ryzen 7 7800X3D",
+    "memory": "32GB",
+    "disk": "3"
+  }
+}

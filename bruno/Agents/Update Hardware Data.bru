@@ -1,0 +1,11 @@
+meta {
+  name: Update Hardware Data
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{base_url}}/agents/{{agent_uuid}}/hardware
+  body: none
+  auth: none
+}
