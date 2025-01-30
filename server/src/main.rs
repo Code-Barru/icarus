@@ -1,9 +1,10 @@
 use std::net::SocketAddr;
 
-use tokio::net::TcpListener;
 use tracing::info;
 
 mod agents;
+mod api;
+mod live;
 mod schema;
 pub mod state;
 pub mod utils;
@@ -15,28 +16,27 @@ async fn main() {
         .compact()
         .init();
 
+    info!("Starting Icarus Servers...\n");
     let state = state::GlobalState::new();
 
-    let app = utils::get_router(state);
+    let api_addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    let api_server = api::WebServer::new(state.clone());
 
-    let listener = match TcpListener::bind("0.0.0.0:1337").await {
-        Ok(listener) => listener,
-        Err(e) => {
-            eprintln!("Failed to bind: {}", e);
-            return;
-        }
+    let api_server_handle = tokio::spawn(async move {
+        api_server.start_server(&api_addr).await;
+    });
+    info!("API Server listening at : {}", api_addr);
+
+    let rt_addr = SocketAddr::from(([0, 0, 0, 0], 1337));
+    let rt_server = live::RTServer::new(state);
+
+    let rt_server_handle = tokio::spawn(async move {
+        rt_server.start_server(&rt_addr).await;
+    });
+    info!("RT  Server listening at : {}", rt_addr);
+
+    match tokio::try_join!(api_server_handle, rt_server_handle) {
+        Ok(_) => (),
+        Err(e) => info!("Error starting servers: {:?}", e),
     };
-
-    info!("Server started at: {}", listener.local_addr().unwrap());
-    match axum::serve(
-        listener,
-        app.into_make_service_with_connect_info::<SocketAddr>(),
-    )
-    .await
-    {
-        Ok(_) => {}
-        Err(e) => {
-            eprintln!("Server error: {}", e);
-        }
-    }
 }

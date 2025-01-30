@@ -33,6 +33,7 @@ impl Agent {
 #[diesel(table_name = crate::schema::agent_network_infos)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct AgentNetworkInfos {
+    #[serde(skip)]
     pub agent_id: Uuid,
     pub hostname: String,
     pub ipv4: String,
@@ -61,25 +62,13 @@ impl From<(Uuid, CreateNetwork)> for AgentNetworkInfos {
 #[diesel(table_name = crate::schema::agent_hardwares)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct AgentHardware {
+    #[serde(skip)]
     pub agent_id: Uuid,
     pub cpu: String,
     pub memory: String,
     pub disk: String,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
-}
-
-impl AgentHardware {
-    pub fn new(cpu: String, memory: String, disk: String) -> Self {
-        AgentHardware {
-            agent_id: Uuid::new_v4(),
-            cpu,
-            memory,
-            disk,
-            created_at: chrono::Local::now().naive_utc(),
-            updated_at: chrono::Local::now().naive_utc(),
-        }
-    }
 }
 
 impl From<(Uuid, CreateHardware)> for AgentHardware {
@@ -94,37 +83,6 @@ impl From<(Uuid, CreateHardware)> for AgentHardware {
             updated_at: chrono::Local::now().naive_utc(),
         }
     }
-}
-
-// data validation
-#[derive(Deserialize)]
-pub struct CreateHardware {
-    pub cpu: String,
-    pub memory: String,
-    pub disk: String,
-}
-
-#[derive(Deserialize)]
-pub struct UpdateHardware {
-    pub cpu: Option<String>,
-    pub memory: Option<String>,
-    pub disk: Option<String>,
-}
-
-#[derive(Deserialize)]
-pub struct CreateNetwork {
-    pub hostname: String,
-    pub ipv4: String,
-    pub ipv6: String,
-    pub mac: String,
-}
-
-#[derive(Deserialize)]
-pub struct UpdateNetwork {
-    pub hostname: Option<String>,
-    pub ipv4: Option<String>,
-    pub ipv6: Option<String>,
-    pub mac: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -144,4 +102,34 @@ impl From<(Agent, Option<AgentNetworkInfos>, Option<AgentHardware>)> for AgentFu
             hardware: hardware,
         }
     }
+}
+
+// data validation
+#[derive(Deserialize)]
+pub struct CreateNetwork {
+    pub hostname: String,
+    pub ipv4: String,
+    pub ipv6: String,
+    pub mac: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateNetwork {
+    pub hostname: Option<String>,
+    pub ipv4: Option<String>,
+    pub ipv6: Option<String>,
+    pub mac: Option<String>,
+}
+#[derive(Deserialize)]
+pub struct CreateHardware {
+    pub cpu: String,
+    pub memory: String,
+    pub disk: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateHardware {
+    pub cpu: Option<String>,
+    pub memory: Option<String>,
+    pub disk: Option<String>,
 }
