@@ -13,7 +13,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn new(file_path: &str) -> Self {
+    pub fn new(file_path: &str) -> Result<State, std::io::Error> {
         let mut state = State {
             uuid: Uuid::new_v4(),
             addr: "".to_string(),
@@ -25,7 +25,7 @@ impl State {
             Ok(file) => file,
             Err(e) => {
                 error!("Failed to open file: {:?}", e);
-                return state;
+                return Err(e);
             }
         };
         let lines = io::BufReader::new(file).lines();
@@ -35,7 +35,7 @@ impl State {
                 Ok(line) => line,
                 Err(e) => {
                     error!("Failed to read line: {:?}", e);
-                    continue;
+                    return Err(e);
                 }
             };
             let parts: Vec<&str> = line.split("=").collect();
@@ -47,6 +47,6 @@ impl State {
                 _ => (),
             }
         }
-        state
+        Ok(state)
     }
 }

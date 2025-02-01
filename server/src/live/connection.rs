@@ -99,8 +99,7 @@ impl Connection {
                     info!("{}", String::from_utf8_lossy(&data));
                 }
                 Err(_) => {
-                    error!("Error receiving data from RT Server. Reconnecting in 5s");
-                    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+                    error!("Error receiving data from Agent");
                     break;
                 }
             };

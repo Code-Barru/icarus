@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 pub mod rt_client;
 pub mod state;
 use state::State;
@@ -11,12 +12,18 @@ async fn main() {
         .compact()
         .init();
 
+    let state = match State::new("icarus") {
+        Ok(state) => state,
+        Err(_) => {
+            error!("Failed to read state file. Retrying in 5s");
+            std::process::exit(1);
+        }
+    };
+
     // Agent main loop
     // Agent keeps trying to reconnect if error occurs
     loop {
-        let state = State::new("icarus");
-
-        let rt_client = rt_client::RTClient::new(state.addr, state.rt_port).await;
+        let rt_client = rt_client::RTClient::new(state.addr.clone(), state.rt_port).await;
         info!("Connected to RT Server");
         match rt_client.handshake(state.uuid).await {
             Ok(_) => (),
