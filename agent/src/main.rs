@@ -1,34 +1,43 @@
-use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt},
-    net::TcpStream,
-};
-
-pub mod utils;
+pub mod rt_client;
+pub mod state;
+use state::State;
+use tracing::{error, info, level_filters::LevelFilter};
 
 #[tokio::main]
 async fn main() {
-    let state = utils::State::from("icarus".to_string());
+    tracing_subscriber::fmt()
+        .with_target(false)
+        .with_max_level(LevelFilter::DEBUG)
+        .compact()
+        .init();
 
-    let mut client = match TcpStream::connect(format!("{}:{}", state.addr, state.rt_port)).await {
-        Ok(client) => client,
-        Err(e) => {
-            return eprintln!("Error connecting to RT Server: {:?}", e);
-        }
-    };
+    // Agent main loop
+    // Agent keeps trying to reconnect if error occurs
+    loop {
+        let state = State::new("icarus");
 
-    println!("Sending: {}", state.uuid);
-    match client.write(state.uuid.as_bytes()).await {
-        Ok(_) => (),
-        Err(e) => {
-            return eprintln!("Error writing to RT Server: {:?}", e);
-        }
-    }
+        let rt_client = rt_client::RTClient::new(state.addr, state.rt_port).await;
+        info!("Connected to RT Server");
+        match rt_client.handshake(state.uuid).await {
+            Ok(_) => (),
+            Err(e) => {
+                error!("Failed to handshake with RT Server: {:?}", e);
+                tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+                continue;
+            }
+        };
+        info!("Handshake successful");
 
-    let mut buffer = [0; 1024];
-    match client.read(&mut buffer).await {
-        Ok(_) => (),
-        Err(e) => {
-            return eprintln!("Error reading from RT Server: {:?}", e);
+        loop {
+            let data = match rt_client.receive().await {
+                Ok(data) => data,
+                Err(_) => {
+                    error!("Error receiving data from RT Server. Reconnecting in 5s");
+                    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+                    break;
+                }
+            };
+            info!("{}", String::from_utf8_lossy(&data));
         }
     }
 }

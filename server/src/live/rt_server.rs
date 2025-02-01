@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use std::error::Error;
-use tokio::{io::AsyncReadExt, sync::Mutex};
-use tracing::{error, info};
-use uuid::Uuid;
+use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt},
+    sync::Mutex,
+};
+use tracing::{debug, error};
 
 use crate::state::GlobalState;
 
@@ -11,8 +12,11 @@ use super::RTServer;
 
 impl RTServer {
     pub fn new(state: GlobalState) -> Self {
+        let (priv_key, _) = shared::encryption::rsa::generate_keys();
+
         RTServer {
             state: Arc::new(Mutex::new(state)),
+            rsa_key: Arc::new(Mutex::new(priv_key)),
         }
     }
 
@@ -28,7 +32,7 @@ impl RTServer {
         loop {
             let (mut socket, socket_addr) = match listener.accept().await {
                 Ok((socket, socket_addr)) => {
-                    info!("Accepted connection from: {}", socket.peer_addr().unwrap());
+                    debug!("Accepted connection from: {}", socket.peer_addr().unwrap());
                     (socket, socket_addr)
                 }
                 Err(e) => {
@@ -36,57 +40,70 @@ impl RTServer {
                     continue;
                 }
             };
-            let mut buffer = [0; 16];
+            let mut buffer = [0; 17];
 
-            match socket.read(&mut buffer).await {
-                Ok(0) => {
-                    info!("Client {} disconnected.", socket_addr)
-                }
-                Ok(data) => {
-                    match self.handshake(buffer, data).await {
-                        Ok(uuid) => {
-                            info!(
-                                "Handshake successful with client {} - {}",
-                                socket_addr, uuid
-                            );
-                        }
-                        Err(e) => {
-                            error!("Failed to handshake with client {}:{:?}", socket_addr, e)
-                        }
-                    };
-                }
+            let _ = match self.receive(&mut socket).await {
+                Ok(data) => buffer.copy_from_slice(&data),
+                Err(_) => continue,
+            };
+
+            let mut connection = match self.handshake(buffer, socket).await {
+                Ok(connection) => connection,
                 Err(e) => {
-                    error!("Failed to read from socket {}: {:?}", socket_addr, e)
+                    error!("Failed to handshake with client {}: {:?}", socket_addr, e);
+                    continue;
                 }
-            }
+            };
 
-            // tokio::spawn(async move {
-            //     Self::handle_client(socket).await;
-            // });
+            let state = self.state.lock().await;
+            state.add_connection(connection.clone()).await;
+
+            let cloned_state = self.state.clone();
+            tokio::spawn(async move {
+                connection.handle_client().await;
+
+                let state = cloned_state.lock().await;
+                state.remove_connection(connection.agent_uuid).await;
+            });
         }
     }
-    pub async fn handshake(
-        &self,
-        data: [u8; 16],
-        content_length: usize,
-    ) -> Result<Uuid, Box<dyn Error>> {
-        if content_length != 16 {
-            return Err("Invalid UUID".into());
-        }
 
-        let uuid = Uuid::from_bytes(data);
-        let state = self.state.lock().await;
-        let _ = match state.get_agent(uuid).await {
-            Ok(agent) => match agent {
-                Some(_) => (),
-                None => {
-                    return Err(format!("Agent not found with uuid: {}", uuid).into());
-                }
-            },
+    pub async fn receive(
+        &self,
+        socket: &mut tokio::net::TcpStream,
+    ) -> Result<Vec<u8>, std::io::Error> {
+        let mut buf = [0; 1024];
+        let n = match socket.read(&mut buf).await {
+            Ok(n) => n,
             Err(e) => {
-                return Err(e.into());
+                error!("Failed to read data: {:?}", e);
+                return Err(e);
             }
         };
-        Ok(uuid)
+        if n == 0 {
+            error!("Client disconnected");
+        }
+        Ok(buf[..n].to_vec())
+    }
+
+    pub async fn send(
+        &self,
+        socket: &mut tokio::net::TcpStream,
+        data: Vec<u8>,
+    ) -> Result<(), std::io::Error> {
+        match socket.write_all(&data).await {
+            Ok(_) => (),
+            Err(e) => {
+                error!("Failed to write data: {:?}", e);
+                return Err(e);
+            }
+        };
+        match socket.flush().await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                error!("Failed to flush data: {:?}", e);
+                return Err(e);
+            }
+        }
     }
 }

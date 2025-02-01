@@ -1,14 +1,11 @@
 use crate::state::GlobalState;
 use axum::Router;
 use diesel::{Connection, PgConnection};
-use dotenvy::dotenv;
 use std::env;
 use tower_http::trace::{self, TraceLayer};
 use tracing::{Level, info};
 
 pub fn establish_connection() -> PgConnection {
-    dotenv().ok();
-
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     match PgConnection::establish(&database_url) {
         Ok(conn) => {

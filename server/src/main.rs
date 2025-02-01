@@ -1,6 +1,6 @@
+use dotenvy::dotenv;
 use std::net::SocketAddr;
-
-use tracing::info;
+use tracing::{info, level_filters::LevelFilter};
 
 mod agents;
 mod api;
@@ -11,8 +11,11 @@ pub mod utils;
 
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+
     tracing_subscriber::fmt()
         .with_target(false)
+        .with_max_level(LevelFilter::INFO)
         .compact()
         .init();
 

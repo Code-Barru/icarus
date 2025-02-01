@@ -6,3 +6,9 @@ edition = "2024"
 [dependencies]
 tokio = { version = "1.43.0", features = ["full"] }
 uuid = { version = "1.12.1", features = ["v4", "fast-rng", "serde"] }
+tracing = { version = "0.1.41" }
+tracing-subscriber = { version = "0.3.19" }
+shared = { path = "../shared" }
+aes-gcm = "0.10.3"
+rsa = { version = "0.9.7", features = ["sha2"] }
+rand = "0.9"
