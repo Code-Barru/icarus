@@ -1,6 +1,6 @@
 use super::models::{
-    Agent, AgentFull, AgentHardware, AgentNetworkInfos, CreateHardware, CreateNetwork,
-    UpdateHardware, UpdateNetwork,
+    Agent, AgentFull, AgentHardware, AgentNetworkInfos, CreateAgentResponse, CreateHardware,
+    CreateNetwork, UpdateHardware, UpdateNetwork,
 };
 use axum::{
     Json, Router,
@@ -51,7 +51,9 @@ async fn create_agent(State(state): State<GlobalState>) -> impl IntoResponse {
         Ok(_) => (),
         Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
     };
-    (StatusCode::CREATED, Json(agent)).into_response()
+
+    let response = CreateAgentResponse { uuid: agent.id };
+    (StatusCode::CREATED, Json(response)).into_response()
 }
 
 async fn delete_agent(State(state): State<GlobalState>, Path(id): Path<Uuid>) -> impl IntoResponse {
