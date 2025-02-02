@@ -8,6 +8,8 @@ use tokio::net::TcpStream;
 use tracing::{debug, error};
 use uuid::Uuid;
 
+use crate::live::rt_server::{receive, send};
+
 use super::{Connection, RTServer};
 
 impl RTServer {
@@ -39,7 +41,7 @@ impl RTServer {
                 return Err(e.into());
             }
         };
-        match self.send(&mut socket, encryption_request.serialize()).await {
+        match send(&mut socket, encryption_request.serialize()).await {
             Ok(_) => (),
             Err(e) => {
                 error!("Failed to send encryption request: {:?}", e);
@@ -47,7 +49,7 @@ impl RTServer {
             }
         };
         debug!("Sent encryption request");
-        let encryption_response = match self.receive(&mut socket).await {
+        let encryption_response = match receive(&mut socket).await {
             Ok(data) => data,
             Err(e) => {
                 error!("Failed to receive encryption response: {:?}", e);
