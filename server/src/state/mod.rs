@@ -1,10 +1,11 @@
+#![allow(dead_code)]
 mod agent;
 mod connection;
 
 use crate::live::Connection;
 use crate::utils::establish_connection;
 use std::sync::Arc;
-use tokio::sync::{Mutex, MutexGuard};
+use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub struct GlobalState {
@@ -19,9 +20,5 @@ impl GlobalState {
             pg_connection: Arc::new(Mutex::new(pg_connection)),
             connections: Arc::new(Mutex::new(Vec::new())),
         }
-    }
-
-    pub async fn get_conn(&self) -> MutexGuard<'_, diesel::PgConnection> {
-        self.pg_connection.lock().await
     }
 }

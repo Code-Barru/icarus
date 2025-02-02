@@ -63,6 +63,7 @@ impl RTServer {
                 return Err("Invalid packet".into());
             }
         };
+        debug!("Got encryption response");
 
         let (shared_secret, verify_token) =
             match self.parse_encryption_response(encryption_response).await {
