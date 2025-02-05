@@ -78,7 +78,12 @@ impl RTServer {
             return Err("Verify token mismatch".into());
         }
         debug!("Handshake successful");
-        Ok(Connection::new(socket, uuid, shared_secret))
+        Ok(Connection::new(
+            socket,
+            uuid,
+            self.state.clone(),
+            shared_secret,
+        ))
     }
 
     fn get_login_request(&self, data: [u8; 17]) -> Result<Uuid, Box<dyn Error>> {

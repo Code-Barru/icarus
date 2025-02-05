@@ -1,6 +1,7 @@
+use shared::packets::Packet;
 use uuid::Uuid;
 
-use crate::live::Connection;
+use crate::{live::Connection, tasks::model::Task};
 
 use super::GlobalState;
 
@@ -20,5 +21,19 @@ impl GlobalState {
             .iter()
             .find(|c| c.agent_uuid == agent_uuid)
             .map(|c| c.clone())
+    }
+
+    pub async fn send_task_request(
+        &self,
+        agent_uuid: Uuid,
+        task: Task,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let connection = match self.get_connection(agent_uuid).await {
+            Some(connection) => connection,
+            None => return Ok(()),
+        };
+        connection.send(&task.to_packet().serialize()).await;
+
+        Ok(())
     }
 }

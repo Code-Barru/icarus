@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 mod agent;
 mod connection;
+mod task;
 
 use crate::live::Connection;
 use crate::utils::establish_connection;

@@ -13,3 +13,4 @@ rand = "0.9"
 rsa = { version = "0.9.7", features = ["sha2"] }
 hex-literal = "0.4"
 hex = "0.4.3"
+diesel = { version = "2.2.4", features = ["postgres", "uuid", "chrono"] }

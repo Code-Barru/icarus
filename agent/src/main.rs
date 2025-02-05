@@ -1,14 +1,24 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions),),
+    windows_subsystem = "windows"
+)]
+
 pub mod rt_client;
 pub mod state;
+pub mod tasks;
+
+use std::sync::Arc;
+
+use rt_client::packet_handler::handle_packet;
 use state::State;
+use tokio::sync::Mutex;
 use tracing::{error, info, level_filters::LevelFilter};
 
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt()
         .with_target(false)
-        .with_max_level(LevelFilter::DEBUG)
+        .with_max_level(LevelFilter::INFO)
         .compact()
         .init();
 
@@ -35,7 +45,11 @@ async fn main() {
         };
         info!("Handshake successful");
 
+        let rt_client = Arc::new(Mutex::new(rt_client));
         loop {
+            let rt_client_clone = rt_client.clone();
+            let rt_client = rt_client_clone.lock().await;
+
             let data = match rt_client.receive().await {
                 Ok(data) => data,
                 Err(_) => {
@@ -44,7 +58,11 @@ async fn main() {
                     break;
                 }
             };
-            info!("{}", String::from_utf8_lossy(&data));
+
+            let rt_client = rt_client.clone();
+            tokio::spawn(async move {
+                handle_packet(&data, rt_client.clone()).await;
+            });
         }
     }
 }

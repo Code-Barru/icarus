@@ -8,15 +8,24 @@ use tokio::{
 use tracing::{error, info};
 use uuid::Uuid;
 
+use super::packet_handler;
+use crate::state::GlobalState;
+
 use super::Connection;
 
 impl Connection {
-    pub fn new(socket: TcpStream, agent_uuid: Uuid, shared_secret: [u8; 32]) -> Self {
+    pub fn new(
+        socket: TcpStream,
+        agent_uuid: Uuid,
+        state: Arc<Mutex<GlobalState>>,
+        shared_secret: [u8; 32],
+    ) -> Self {
         let (read_socket, write_socket) = socket.into_split();
         Connection {
+            agent_uuid,
+            state,
             write_socket: Arc::new(Mutex::new(write_socket)),
             read_socket: Arc::new(Mutex::new(read_socket)),
-            agent_uuid,
             shared_secret: shared_secret,
         }
     }
@@ -94,15 +103,14 @@ impl Connection {
     pub async fn handle_client(&mut self) {
         info!("Agent {:?} connected to RT Server", self.agent_uuid);
         loop {
-            match self.receive().await {
-                Ok(data) => {
-                    info!("{}", String::from_utf8_lossy(&data));
-                }
+            let packet = match self.receive().await {
+                Ok(data) => data,
                 Err(_) => {
                     error!("Error receiving data from Agent");
                     break;
                 }
             };
+            packet_handler::handle_packet(&packet, self.state.clone()).await;
         }
         info!("Agent {:?} disconnected from RT Server", self.agent_uuid);
     }

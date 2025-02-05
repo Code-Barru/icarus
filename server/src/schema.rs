@@ -27,11 +27,28 @@ diesel::table! {
     agents (id) {
         id -> Uuid,
         name -> Varchar,
-        tasks -> Array<Uuid>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
         last_seen_at -> Timestamp,
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(agent_hardwares, agent_network_infos, agents,);
+diesel::table! {
+    tasks (id) {
+        id -> Uuid,
+        agent_uuid -> Uuid,
+        task_type -> Varchar,
+        status -> Varchar,
+        parameters -> Nullable<Varchar>,
+        result -> Nullable<Varchar>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(
+    agent_hardwares,
+    agent_network_infos,
+    agents,
+    tasks,
+);

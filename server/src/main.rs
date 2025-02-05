@@ -7,6 +7,7 @@ mod api;
 mod live;
 mod schema;
 mod state;
+mod tasks;
 mod utils;
 
 use utils::*;

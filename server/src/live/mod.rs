@@ -11,6 +11,7 @@ use crate::state::GlobalState;
 
 mod connection;
 mod handshake;
+mod packet_handler;
 mod rt_server;
 
 pub struct RTServer {
@@ -18,10 +19,11 @@ pub struct RTServer {
     rsa_key: Arc<Mutex<rsa::RsaPrivateKey>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Connection {
+    pub agent_uuid: Uuid,
+    pub state: Arc<Mutex<GlobalState>>,
     pub write_socket: Arc<Mutex<OwnedWriteHalf>>,
     pub read_socket: Arc<Mutex<OwnedReadHalf>>,
-    pub agent_uuid: Uuid,
     pub shared_secret: [u8; 32],
 }

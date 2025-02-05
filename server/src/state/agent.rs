@@ -4,10 +4,12 @@ use crate::agents::models::{
 use crate::schema::agent_hardwares::dsl as agent_hardware_dsl;
 use crate::schema::agent_network_infos::dsl as agent_network_info_dsl;
 use crate::schema::agents::dsl as agent_dsl;
+use crate::tasks::model::Task;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use uuid::Uuid;
 
 use super::GlobalState;
+use crate::schema::tasks::dsl as task_dsl;
 
 impl GlobalState {
     pub async fn get_agents(&self) -> Result<Vec<Agent>, diesel::result::Error> {
@@ -22,6 +24,21 @@ impl GlobalState {
             .filter(agent_dsl::id.eq(id))
             .first::<Agent>(&mut *conn)
             .optional()
+    }
+
+    pub async fn get_agent_tasks(&self, id: Uuid) -> Result<Vec<Task>, diesel::result::Error> {
+        let mut conn = self.pg_connection.lock().await;
+        let agent = match self.get_agent(id).await {
+            Ok(agent) => match agent {
+                Some(agent) => agent,
+                None => return Err(diesel::result::Error::NotFound),
+            },
+            Err(e) => return Err(e),
+        };
+
+        task_dsl::tasks
+            .filter(task_dsl::agent_uuid.eq(agent.id))
+            .load::<Task>(&mut *conn)
     }
 
     pub async fn create_agent(&self, agent: &Agent) -> Result<usize, diesel::result::Error> {

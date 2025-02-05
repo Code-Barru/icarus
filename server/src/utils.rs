@@ -24,6 +24,7 @@ pub fn establish_connection() -> PgConnection {
 pub fn get_router(state: GlobalState) -> Router {
     Router::new()
         .nest("/agents", crate::agents::routes::get_router(&state))
+        .nest("/tasks", crate::tasks::route::get_router(&state))
         .nest("/dist", get_serve_dir())
         .layer(
             TraceLayer::new_for_http()
