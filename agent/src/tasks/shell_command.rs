@@ -19,7 +19,7 @@ pub async fn execute(task: &TaskRequest) -> TaskResponse {
 
     let parameters = String::from_utf8(parameters).expect("Invalid UTF-8");
 
-    let output = match Command::new("powershell.exe")
+    let output = match Command::new("powershell")
         .arg("-C")
         .arg(parameters)
         .output()
@@ -35,6 +35,10 @@ pub async fn execute(task: &TaskRequest) -> TaskResponse {
             );
         }
     };
+
+    if !output.status.success() {
+        return TaskResponse::new(task.task_uuid, TaskStatus::Failed, Some(output.stderr));
+    }
 
     TaskResponse::new(task.task_uuid, TaskStatus::Completed, Some(output.stdout))
 }
