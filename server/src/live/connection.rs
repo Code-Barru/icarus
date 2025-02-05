@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use shared::packets::{Packet, TaskRequest};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -102,6 +103,7 @@ impl Connection {
 
     pub async fn handle_client(&mut self) {
         info!("Agent {:?} connected to RT Server", self.agent_uuid);
+        self.send_undone_tasks().await;
         loop {
             let packet = match self.receive().await {
                 Ok(data) => data,
@@ -113,5 +115,24 @@ impl Connection {
             packet_handler::handle_packet(&packet, self.state.clone()).await;
         }
         info!("Agent {:?} disconnected from RT Server", self.agent_uuid);
+    }
+
+    async fn send_undone_tasks(&self) {
+        let state = self.state.lock().await;
+        let tasks = match state.get_undone_tasks(self.agent_uuid).await {
+            Ok(tasks) => tasks,
+            Err(e) => {
+                error!("Failed to get undone tasks: {:?}", e);
+                return;
+            }
+        };
+        if tasks.is_empty() {
+            return;
+        }
+        for task in tasks {
+            let task_request = TaskRequest::new(task.id, task.task_type, task.parameters.clone());
+            let data = task_request.serialize();
+            self.send(&data).await;
+        }
     }
 }

@@ -41,6 +41,22 @@ impl GlobalState {
             .load::<Task>(&mut *conn)
     }
 
+    pub async fn get_undone_tasks(&self, id: Uuid) -> Result<Vec<Task>, diesel::result::Error> {
+        let agent = match self.get_agent(id).await {
+            Ok(agent) => match agent {
+                Some(agent) => agent,
+                None => return Err(diesel::result::Error::NotFound),
+            },
+            Err(e) => return Err(e),
+        };
+        let mut conn = self.pg_connection.lock().await;
+
+        task_dsl::tasks
+            .filter(task_dsl::agent_uuid.eq(agent.id))
+            .filter(task_dsl::status.eq(shared::models::TaskStatus::Queued))
+            .load::<Task>(&mut *conn)
+    }
+
     pub async fn create_agent(&self, agent: &Agent) -> Result<usize, diesel::result::Error> {
         let mut conn = self.pg_connection.lock().await;
         diesel::insert_into(agent_dsl::agents)
