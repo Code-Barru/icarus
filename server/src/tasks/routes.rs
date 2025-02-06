@@ -1,4 +1,4 @@
-use super::model::CreateTask;
+use super::models::CreateTask;
 use axum::{
     Json, Router,
     extract::State,
@@ -8,7 +8,7 @@ use axum::{
 use http::StatusCode;
 use tracing::error;
 
-use super::model::Task;
+use super::models::Task;
 use crate::state::GlobalState;
 
 pub async fn get_tasks(State(state): State<GlobalState>) -> impl IntoResponse {
@@ -38,18 +38,6 @@ pub async fn create_task(
     };
 
     let task = Task::from(create_task);
-    match state.create_task(&task).await {
-        Ok(_) => (),
-        Err(e) => {
-            error!("Error creating task: {:?}", e);
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json("Error creating task"),
-            )
-                .into_response();
-        }
-    };
-
     match state.send_task_request(task.agent_uuid, task.clone()).await {
         Ok(_) => (),
         Err(e) => {
@@ -57,6 +45,17 @@ pub async fn create_task(
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json("Error sending task request"),
+            )
+                .into_response();
+        }
+    };
+    match state.create_task(&task).await {
+        Ok(_) => (),
+        Err(e) => {
+            error!("Error creating task: {:?}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json("Error creating task"),
             )
                 .into_response();
         }

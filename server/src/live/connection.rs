@@ -1,12 +1,13 @@
-use std::sync::Arc;
+use std::{path::Path, sync::Arc};
 
-use shared::packets::{Packet, TaskRequest};
+use sha256::try_digest;
+use shared::packets::{Packet, PacketEnum, TaskRequest, from_packet_bytes};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
     sync::Mutex,
 };
-use tracing::{error, info};
+use tracing::{debug, error, info};
 use uuid::Uuid;
 
 use super::packet_handler;
@@ -72,7 +73,7 @@ impl Connection {
         match read_socket.read_exact(&mut buff_len).await {
             Ok(_) => (),
             Err(e) => {
-                error!("Failed to read data: {:?}", e);
+                debug!("Failed to read buff len: {:?}", e);
                 return Err(e);
             }
         };
@@ -83,7 +84,7 @@ impl Connection {
         match read_socket.read_exact(&mut nonce).await {
             Ok(_) => (),
             Err(e) => {
-                error!("Failed to read data: {:?}", e);
+                debug!("Failed to read nonce: {:?}", e);
                 return Err(e);
             }
         };
@@ -92,7 +93,7 @@ impl Connection {
         match read_socket.read(&mut ciphered_text).await {
             Ok(_) => (),
             Err(e) => {
-                error!("Failed to read data: {:?}", e);
+                debug!("Failed to read ciphered text: {:?}", e);
                 return Err(e);
             }
         };
@@ -102,19 +103,69 @@ impl Connection {
     }
 
     pub async fn handle_client(&mut self) {
+        match self.send_update_request().await {
+            Ok(need_update) => {
+                if need_update {
+                    return;
+                }
+            }
+            Err(e) => {
+                error!("Failed to send update request: {:?}", e);
+                return;
+            }
+        };
         info!("Agent {:?} connected to RT Server", self.agent_uuid);
         self.send_undone_tasks().await;
         loop {
             let packet = match self.receive().await {
                 Ok(data) => data,
                 Err(_) => {
-                    error!("Error receiving data from Agent");
+                    debug!("Error receiving data from Agent");
                     break;
                 }
             };
             packet_handler::handle_packet(&packet, self.state.clone()).await;
         }
         info!("Agent {:?} disconnected from RT Server", self.agent_uuid);
+    }
+
+    pub async fn send_update_request(&self) -> Result<bool, Box<dyn std::error::Error>> {
+        let agent_file = Path::new("dist/agent");
+        let agent_hash = match try_digest(agent_file) {
+            Ok(hash) => hash,
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
+        let update_request = shared::packets::UpdateRequest::new(agent_hash);
+        self.send(&update_request.serialize()).await;
+
+        let packet = match self.receive().await {
+            Ok(packet) => packet,
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
+
+        let update_response = match from_packet_bytes(&packet) {
+            Ok(PacketEnum::UpdateResponse(update_response)) => update_response,
+            _ => {
+                return Err("Received unexpected packet type".into());
+            }
+        };
+
+        if !update_response.need_update {
+            return Ok(false);
+        }
+
+        info!("Agent {:?} needs to update", self.agent_uuid);
+
+        match self.shutdown().await {
+            Ok(_) => Ok(true),
+            Err(e) => {
+                return Err(e.into());
+            }
+        }
     }
 
     async fn send_undone_tasks(&self) {
@@ -134,5 +185,21 @@ impl Connection {
             let data = task_request.serialize();
             self.send(&data).await;
         }
+    }
+
+    async fn shutdown(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let write_socket = self.write_socket.clone();
+        let mut write_socket = write_socket.lock().await;
+
+        match write_socket.shutdown().await {
+            Ok(_) => (),
+            Err(e) => {
+                return Err(e.into());
+            }
+        };
+
+        let state = self.state.lock().await;
+        state.remove_connection(self.agent_uuid).await;
+        Ok(())
     }
 }

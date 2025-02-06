@@ -9,9 +9,7 @@ pub async fn handle_packet(packet: &[u8], state: Arc<Mutex<GlobalState>>) {
         Ok(PacketEnum::TaskResponse(task_packet)) => {
             let state = state.lock().await;
             match state.update_task(task_packet).await {
-                Ok(_) => {
-                    // info!("Task updated successfully");
-                }
+                Ok(_) => (),
                 Err(e) => {
                     error!("Failed to update task: {:?}", e);
                 }

@@ -4,7 +4,7 @@ use crate::agents::models::{
 use crate::schema::agent_hardwares::dsl as agent_hardware_dsl;
 use crate::schema::agent_network_infos::dsl as agent_network_info_dsl;
 use crate::schema::agents::dsl as agent_dsl;
-use crate::tasks::model::Task;
+use crate::tasks::models::Task;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
 use uuid::Uuid;
 

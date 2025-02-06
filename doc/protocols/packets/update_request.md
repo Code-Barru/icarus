@@ -10,4 +10,4 @@
 
 | Field      | Type                 | Size |
 | ---------- | -------------------- | ---- |
-| agent_hash | `hexadecimal string` | 256  |
+| agent_hash | `hexadecimal string` | 64   |

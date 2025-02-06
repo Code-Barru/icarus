@@ -30,7 +30,7 @@ impl RTClient {
 
     pub async fn receive_raw(&self) -> Result<Vec<u8>, std::io::Error> {
         let read_socket = self.read_socket.clone();
-        let mut buf = [0; 1024];
+        let mut buf = [0; 4096];
         let mut read_socket = read_socket.lock().await;
 
         let n = match read_socket.read(&mut buf).await {
@@ -125,6 +125,15 @@ impl RTClient {
             Err(e) => {
                 error!("Failed to flush data: {:?}", e);
             }
+        };
+    }
+
+    pub async fn disconnect(&self) {
+        let write_socket = self.write_socket.clone();
+        let mut write_socket = write_socket.lock().await;
+        match write_socket.shutdown().await {
+            Ok(_) => (),
+            Err(e) => error!("Failed to shutdown socket: {:?}", e),
         };
     }
 }

@@ -12,3 +12,5 @@ shared = { path = "../shared" }
 aes-gcm = "0.10.3"
 rsa = { version = "0.9.7", features = ["sha2"] }
 rand = "0.9"
+sha256 = "1.5.0"
+ureq = "3.0.4"

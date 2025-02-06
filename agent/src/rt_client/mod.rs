@@ -7,6 +7,7 @@ use tokio::{
 pub mod handshake;
 pub mod packet_handler;
 pub mod rt_client;
+pub mod update;
 
 #[derive(Clone, Debug)]
 pub struct RTClient {

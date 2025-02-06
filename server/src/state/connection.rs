@@ -1,7 +1,7 @@
 use shared::packets::Packet;
 use uuid::Uuid;
 
-use crate::{live::Connection, tasks::model::Task};
+use crate::{live::Connection, tasks::models::Task};
 
 use super::GlobalState;
 

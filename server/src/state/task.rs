@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use super::GlobalState;
 use crate::schema::tasks::dsl as task_dsl;
-use crate::tasks::model::{Task, UpdateTask};
+use crate::tasks::models::{Task, UpdateTask};
 
 impl GlobalState {
     pub async fn get_tasks(&self) -> Result<Vec<Task>, diesel::result::Error> {

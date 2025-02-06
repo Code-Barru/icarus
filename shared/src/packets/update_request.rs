@@ -9,11 +9,11 @@ impl super::Packet for UpdateRequest {
     }
 
     fn deserialize(data: &[u8]) -> Result<Self, super::Error> {
-        if data.len() != 256 {
+        if data.len() != 64 {
             return Err(super::Error::InvalidData);
         }
 
-        let agent_hash: String = data[0..256].iter().map(|&x| x as char).collect();
+        let agent_hash: String = data[0..64].iter().map(|&x| x as char).collect();
 
         Ok(UpdateRequest { agent_hash })
     }
