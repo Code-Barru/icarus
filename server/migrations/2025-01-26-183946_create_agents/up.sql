@@ -21,9 +21,9 @@ CREATE TABLE "agent_network_infos"(
 CREATE TABLE "agents"(
 	"id" UUID NOT NULL PRIMARY KEY,
 	"name" VARCHAR NOT NULL,
+	"connected" BOOLEAN NOT NULL,
 	"created_at" TIMESTAMP NOT NULL,
-	"updated_at" TIMESTAMP NOT NULL,
-	"last_seen_at" TIMESTAMP NOT NULL
+	"updated_at" TIMESTAMP NOT NULL
 );
 
 CREATE OR REPLACE FUNCTION update_agents_timestamp()

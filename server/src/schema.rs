@@ -27,9 +27,9 @@ diesel::table! {
     agents (id) {
         id -> Uuid,
         name -> Varchar,
+        connected -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        last_seen_at -> Timestamp,
     }
 }
 

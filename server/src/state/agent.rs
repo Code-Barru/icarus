@@ -50,6 +50,27 @@ impl GlobalState {
             .execute(&mut *conn)
     }
 
+    pub async fn connect(&self, agent_id: Uuid) -> Result<usize, diesel::result::Error> {
+        let mut conn = self.pg_connection.lock().await;
+        diesel::update(agent_dsl::agents.filter(agent_dsl::id.eq(agent_id)))
+            .set((agent_dsl::connected.eq(true),))
+            .execute(&mut *conn)
+    }
+
+    pub async fn disconnect(&self, agent_id: Uuid) -> Result<usize, diesel::result::Error> {
+        let mut conn = self.pg_connection.lock().await;
+        diesel::update(agent_dsl::agents.filter(agent_dsl::id.eq(agent_id)))
+            .set(agent_dsl::connected.eq(false))
+            .execute(&mut *conn)
+    }
+
+    pub async fn disconnect_all(&self) -> Result<usize, diesel::result::Error> {
+        let mut conn = self.pg_connection.lock().await;
+        diesel::update(agent_dsl::agents)
+            .set(agent_dsl::connected.eq(false))
+            .execute(&mut *conn)
+    }
+
     pub async fn update_agent(
         &self,
         id: Uuid,

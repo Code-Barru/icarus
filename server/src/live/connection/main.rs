@@ -21,6 +21,7 @@ impl Connection {
             }
         };
         info!("Agent {:?} connected to RT Server", self.agent_uuid);
+        self.connect().await;
         self.send_undone_tasks().await;
         loop {
             let packet = match self.receive().await {
@@ -33,6 +34,23 @@ impl Connection {
             packet_handler::handle_packet(&packet, self.state.clone()).await;
         }
         info!("Agent {:?} disconnected from RT Server", self.agent_uuid);
+        let state = self.state.lock().await;
+        match state.disconnect(self.agent_uuid).await {
+            Ok(_) => (),
+            Err(e) => {
+                error!("Failed to disconnect agent: {:?}", e);
+            }
+        };
+    }
+
+    pub async fn connect(&self) {
+        let state = self.state.lock().await;
+        match state.connect(self.agent_uuid).await {
+            Ok(_) => (),
+            Err(e) => {
+                error!("Failed to connect agent: {:?}", e);
+            }
+        };
     }
 
     pub async fn send_update_request(&self) -> Result<bool, Box<dyn std::error::Error>> {

@@ -8,9 +8,9 @@ use uuid::Uuid;
 pub struct Agent {
     pub id: Uuid,
     pub name: String,
+    pub connected: bool,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
-    pub last_seen_at: chrono::NaiveDateTime,
 }
 
 impl Agent {
@@ -20,9 +20,9 @@ impl Agent {
         Agent {
             id: uuid,
             name: uuid.to_string(),
+            connected: false,
             created_at: chrono::Local::now().naive_utc(),
             updated_at: chrono::Local::now().naive_utc(),
-            last_seen_at: chrono::Local::now().naive_utc(),
         }
     }
 }

@@ -58,6 +58,16 @@ impl RTServer {
             }
         };
 
+        {
+            let state = self.state.lock().await;
+            match state.disconnect_all().await {
+                Ok(_) => (),
+                Err(e) => {
+                    error!("Failed to disconnect all agents: {:?}", e);
+                }
+            };
+        }
+
         loop {
             let (mut socket, socket_addr) = match listener.accept().await {
                 Ok((socket, socket_addr)) => {
