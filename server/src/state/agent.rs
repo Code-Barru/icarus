@@ -6,6 +6,7 @@ use crate::schema::agent_network_infos::dsl as agent_network_info_dsl;
 use crate::schema::agents::dsl as agent_dsl;
 use crate::tasks::models::Task;
 use diesel::{ExpressionMethods, OptionalExtension, QueryDsl, RunQueryDsl};
+use shared::models::TaskStatus;
 use uuid::Uuid;
 
 use super::GlobalState;
@@ -26,21 +27,6 @@ impl GlobalState {
             .optional()
     }
 
-    pub async fn get_agent_tasks(&self, id: Uuid) -> Result<Vec<Task>, diesel::result::Error> {
-        let mut conn = self.pg_connection.lock().await;
-        let agent = match self.get_agent(id).await {
-            Ok(agent) => match agent {
-                Some(agent) => agent,
-                None => return Err(diesel::result::Error::NotFound),
-            },
-            Err(e) => return Err(e),
-        };
-
-        task_dsl::tasks
-            .filter(task_dsl::agent_uuid.eq(agent.id))
-            .load::<Task>(&mut *conn)
-    }
-
     pub async fn get_undone_tasks(&self, id: Uuid) -> Result<Vec<Task>, diesel::result::Error> {
         let agent = match self.get_agent(id).await {
             Ok(agent) => match agent {
@@ -53,7 +39,7 @@ impl GlobalState {
 
         task_dsl::tasks
             .filter(task_dsl::agent_uuid.eq(agent.id))
-            .filter(task_dsl::status.eq(shared::models::TaskStatus::Queued))
+            .filter(task_dsl::status.eq(TaskStatus::Queued))
             .load::<Task>(&mut *conn)
     }
 

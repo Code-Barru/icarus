@@ -8,6 +8,6 @@
 
 #### Data Sent
 
-| Field       | Type | Size |
-| ----------- | ---- | ---- |
-| need_update | bool | 1    |
+| Field       | Type | Size (bytes) | Description              |
+| ----------- | ---- | ------------ | ------------------------ |
+| need_update | bool | 1            | Need to update the agent |

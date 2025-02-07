@@ -10,6 +10,7 @@ pub mod tasks;
 use std::sync::Arc;
 
 use rt_client::packet_handler::handle_packet;
+use shared::models::ConnectionType;
 use state::State;
 use tokio::sync::Mutex;
 use tracing::{error, info, level_filters::LevelFilter};
@@ -33,7 +34,8 @@ async fn main() {
     // Agent main loop
     // Agent keeps trying to reconnect if error occurs
     loop {
-        let rt_client = rt_client::RTClient::new(state.addr.clone(), state.rt_port).await;
+        let rt_client =
+            rt_client::RTClient::new(state.addr.clone(), state.rt_port, ConnectionType::Main).await;
         info!("Connected to RT Server");
         match rt_client.handshake(state.uuid).await {
             Ok(_) => (),
@@ -52,13 +54,19 @@ async fn main() {
 
             let data = match rt_client.receive().await {
                 Ok(data) => data,
-                Err(_) => {
-                    error!("Error receiving data from RT Server. Reconnecting in 5s");
+                Err(e) => {
+                    match e.kind() {
+                        std::io::ErrorKind::UnexpectedEof => {
+                            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+                            break;
+                        }
+                        _ => (),
+                    }
+                    error!("Error receiving data from RT Server: {:?}", e);
                     tokio::time::sleep(std::time::Duration::from_secs(5)).await;
                     break;
                 }
             };
-
             let rt_client = rt_client.clone();
             tokio::spawn(async move {
                 handle_packet(&data, rt_client.clone()).await;

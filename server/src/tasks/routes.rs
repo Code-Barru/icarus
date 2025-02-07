@@ -30,12 +30,16 @@ pub async fn create_task(
     State(state): State<GlobalState>,
     Json(create_task): Json<CreateTask>,
 ) -> impl IntoResponse {
-    let _ = match state.get_agent(create_task.agent_uuid).await {
-        Ok(_) => (),
+    let agent = match state.get_agent(create_task.agent_uuid).await {
+        Ok(agent) => agent,
         Err(_) => {
-            return (StatusCode::BAD_REQUEST, Json("Agent does not exist")).into_response();
+            return (StatusCode::INTERNAL_SERVER_ERROR).into_response();
         }
     };
+
+    if agent.is_none() {
+        return (StatusCode::NOT_FOUND, Json("Agent not found")).into_response();
+    }
 
     let task = Task::from(create_task);
     match state.send_task_request(task.agent_uuid, task.clone()).await {

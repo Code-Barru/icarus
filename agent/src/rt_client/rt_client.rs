@@ -1,4 +1,5 @@
 use super::RTClient;
+use shared::models::ConnectionType;
 use std::{sync::Arc, vec};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -8,7 +9,7 @@ use tokio::{
 use tracing::error;
 
 impl RTClient {
-    pub async fn new(addr: String, port: u16) -> Self {
+    pub async fn new(addr: String, port: u16, connection_type: ConnectionType) -> Self {
         let socket = loop {
             match TcpStream::connect(format!("{}:{}", addr, port)).await {
                 Ok(stream) => break stream,
@@ -25,6 +26,7 @@ impl RTClient {
             write_socket: Arc::new(Mutex::new(write_socket)),
             read_socket: Arc::new(Mutex::new(read_socket)),
             shared_secret: Arc::new(Mutex::new([0; 32])),
+            connection_type,
         }
     }
 
@@ -36,7 +38,6 @@ impl RTClient {
         let n = match read_socket.read(&mut buf).await {
             Ok(n) => n,
             Err(e) => {
-                error!("Failed to read data: {:?}", e);
                 return Err(e);
             }
         };
@@ -64,7 +65,6 @@ impl RTClient {
         match read_socket.read_exact(&mut buff_len).await {
             Ok(_) => (),
             Err(e) => {
-                error!("Failed to read data: {:?}", e);
                 return Err(e);
             }
         };
@@ -75,7 +75,6 @@ impl RTClient {
         match read_socket.read_exact(&mut nonce).await {
             Ok(_) => (),
             Err(e) => {
-                error!("Failed to read data: {:?}", e);
                 return Err(e);
             }
         };
@@ -84,7 +83,6 @@ impl RTClient {
         match read_socket.read(&mut ciphered_text).await {
             Ok(_) => (),
             Err(e) => {
-                error!("Failed to read data: {:?}", e);
                 return Err(e);
             }
         };

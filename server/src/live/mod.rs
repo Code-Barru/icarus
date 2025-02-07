@@ -8,6 +8,7 @@ use tokio::{
 use uuid::Uuid;
 
 use crate::state::GlobalState;
+use shared::models::ConnectionType;
 
 mod connection;
 mod handshake;
@@ -26,4 +27,5 @@ pub struct Connection {
     pub write_socket: Arc<Mutex<OwnedWriteHalf>>,
     pub read_socket: Arc<Mutex<OwnedReadHalf>>,
     pub shared_secret: [u8; 32],
+    pub connection_type: ConnectionType,
 }

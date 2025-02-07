@@ -8,6 +8,6 @@
 
 #### Data Sent
 
-| Field      | Type                 | Size |
-| ---------- | -------------------- | ---- |
-| agent_hash | `hexadecimal string` | 64   |
+| Field      | Type                 | Size (bytes) | Description                  |
+| ---------- | -------------------- | ------------ | ---------------------------- |
+| agent_hash | `hexadecimal string` | 64           | Hash of the agent executable |

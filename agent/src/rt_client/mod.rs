@@ -1,3 +1,4 @@
+use shared::models::ConnectionType;
 use std::sync::Arc;
 use tokio::{
     net::tcp::{OwnedReadHalf, OwnedWriteHalf},
@@ -14,4 +15,5 @@ pub struct RTClient {
     write_socket: Arc<Mutex<OwnedWriteHalf>>,
     read_socket: Arc<Mutex<OwnedReadHalf>>,
     shared_secret: Arc<Mutex<[u8; 32]>>,
+    connection_type: ConnectionType,
 }

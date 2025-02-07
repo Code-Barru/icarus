@@ -64,6 +64,7 @@ impl RTServer {
             }
         };
         debug!("Got encryption response");
+        let connection_type = encryption_response.connection_type.clone();
 
         let (shared_secret, verify_token) =
             match self.parse_encryption_response(encryption_response).await {
@@ -77,12 +78,15 @@ impl RTServer {
         if verify_token != encryption_request.verify_token {
             return Err("Verify token mismatch".into());
         }
+
         debug!("Handshake successful");
+
         Ok(Connection::new(
             socket,
             uuid,
             self.state.clone(),
             shared_secret,
+            connection_type,
         ))
     }
 

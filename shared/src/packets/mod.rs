@@ -8,21 +8,7 @@ mod update_response;
 
 use uuid::Uuid;
 
-use crate::models::{TaskStatus, TaskType};
-
-pub trait Packet {
-    fn serialize(&self) -> Vec<u8>;
-    fn deserialize(data: &[u8]) -> Result<Self, Error>
-    where
-        Self: Sized;
-}
-
-#[derive(Debug)]
-pub enum Error {
-    UnknownPacket,
-    ParseError,
-    InvalidData,
-}
+use crate::models::{ConnectionType, TaskStatus, TaskType};
 
 pub fn from_packet_bytes(data: &[u8]) -> Result<PacketEnum, Error> {
     let packet_code = data[0];
@@ -60,6 +46,20 @@ pub fn from_packet_bytes(data: &[u8]) -> Result<PacketEnum, Error> {
     }
 }
 
+pub trait Packet {
+    fn serialize(&self) -> Vec<u8>;
+    fn deserialize(data: &[u8]) -> Result<Self, Error>
+    where
+        Self: Sized;
+}
+
+#[derive(Debug)]
+pub enum Error {
+    UnknownPacket,
+    ParseError,
+    InvalidData,
+}
+
 pub enum PacketEnum {
     LoginRequest(LoginRequest),
     EncryptionRequest(EncryptionRequest),
@@ -68,24 +68,6 @@ pub enum PacketEnum {
     UpdateResponse(UpdateResponse),
     TaskRequest(TaskRequest),
     TaskResponse(TaskResponse),
-}
-
-impl Packet for PacketEnum {
-    fn serialize(&self) -> Vec<u8> {
-        match self {
-            PacketEnum::LoginRequest(packet) => packet.serialize(),
-            PacketEnum::EncryptionRequest(packet) => packet.serialize(),
-            PacketEnum::EncryptionResponse(packet) => packet.serialize(),
-            PacketEnum::UpdateRequest(packet) => packet.serialize(),
-            PacketEnum::UpdateResponse(packet) => packet.serialize(),
-            PacketEnum::TaskRequest(packet) => packet.serialize(),
-            PacketEnum::TaskResponse(packet) => packet.serialize(),
-        }
-    }
-
-    fn deserialize(_data: &[u8]) -> Result<PacketEnum, Error> {
-        unimplemented!()
-    }
 }
 
 pub struct LoginRequest {
@@ -101,6 +83,7 @@ pub struct EncryptionRequest {
 pub struct EncryptionResponse {
     pub shared_secret: [u8; 256],
     pub verify_token: [u8; 256],
+    pub connection_type: ConnectionType,
 }
 
 #[derive(Debug)]

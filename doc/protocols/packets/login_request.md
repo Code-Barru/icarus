@@ -8,6 +8,6 @@
 
 #### Data Sent
 
-| Field | Type | Size     |
-| ----- | ---- | -------- |
-| UUID  | uuid | 16 bytes |
+| Field | Type | Size (bytes) | Description |
+| ----- | ---- | ------------ | ----------- |
+| UUID  | uuid | 16           | Agent UUID  |

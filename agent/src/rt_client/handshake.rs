@@ -80,7 +80,11 @@ impl RTClient {
         let encrypted_shared_secret = get_encrypted_shared_secret(&pub_key, &shared_secret);
         let verify_token = get_encrypted_verify_token(&pub_key, encryption_request.verify_token);
 
-        let encryption_response = EncryptionResponse::new(encrypted_shared_secret, verify_token);
+        let encryption_response = EncryptionResponse::new(
+            encrypted_shared_secret,
+            verify_token,
+            self.connection_type.clone(),
+        );
         self.send_raw(encryption_response.serialize()).await;
 
         Ok(())

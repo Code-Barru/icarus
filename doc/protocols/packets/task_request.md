@@ -8,9 +8,9 @@
 
 #### Data Sent
 
-| Field           | Type     | Size |
-| --------------- | -------- | ---- |
-| task_uuid       | `uuid`   | 16   |
-| task_type       | `u8`     | 1    |
-| parameters_size | `u32`    | 4    |
-| parameters      | `String` | Var  |
+| Field           | Type     | Size (bytes) | Description                                         |
+| --------------- | -------- | ------------ | --------------------------------------------------- |
+| task_uuid       | `uuid`   | 16           | Task UUID                                           |
+| task_type       | `u8`     | 1            | Task Type                                           |
+| parameters_size | `u32`    | 4            | Size of the parameters                              |
+| parameters      | `String` | Var          | The parameters of the task (command for Shell, etc) |
