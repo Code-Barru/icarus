@@ -1,0 +1,17 @@
+meta {
+  name: Update Agent
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base_url}}/agents/{{agent_uuid}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "zizi"
+  }
+}

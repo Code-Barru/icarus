@@ -1,6 +1,6 @@
 use super::models::{
     Agent, AgentFull, AgentHardware, AgentNetworkInfos, CreateAgentResponse, CreateHardware,
-    CreateNetwork, UpdateHardware, UpdateNetwork,
+    CreateNetwork, UpdateAgent, UpdateHardware, UpdateNetwork,
 };
 use axum::{
     Json, Router,
@@ -54,6 +54,28 @@ async fn create_agent(State(state): State<GlobalState>) -> impl IntoResponse {
 
     let response = CreateAgentResponse { uuid: agent.id };
     (StatusCode::CREATED, Json(response)).into_response()
+}
+
+async fn update_agent(
+    State(state): State<GlobalState>,
+    Path(id): Path<Uuid>,
+    Json(update_agent): Json<UpdateAgent>,
+) -> impl IntoResponse {
+    match state.get_agent(id).await {
+        Ok(agent) => match agent {
+            Some(agent) => agent,
+            None => return (StatusCode::NOT_FOUND).into_response(),
+        },
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+    };
+
+    match state.update_agent(id, update_agent).await {
+        Ok(_) => (StatusCode::NO_CONTENT).into_response(),
+        Err(e) => match e {
+            diesel::result::Error::NotFound => (StatusCode::NOT_FOUND).into_response(),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+        },
+    }
 }
 
 async fn delete_agent(State(state): State<GlobalState>, Path(id): Path<Uuid>) -> impl IntoResponse {
@@ -158,6 +180,7 @@ pub fn get_router(state: &GlobalState) -> Router {
         .route("/", get(get_all_agents))
         .route("/{uuid}", get(get_single_agent))
         .route("/register", post(create_agent))
+        .route("/{uuid}", put(update_agent))
         .route("/{uuid}", delete(delete_agent))
         // Agent Hardware
         .route("/{uuid}/hardware", post(create_hardware))

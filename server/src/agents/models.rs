@@ -101,11 +101,15 @@ impl From<(Agent, Option<AgentNetworkInfos>, Option<AgentHardware>)> for AgentFu
         }
     }
 }
-
 // data validation
 #[derive(Serialize)]
 pub struct CreateAgentResponse {
     pub uuid: Uuid,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateAgent {
+    pub name: String,
 }
 
 #[derive(Deserialize)]

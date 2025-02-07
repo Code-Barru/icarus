@@ -1,5 +1,5 @@
 use crate::agents::models::{
-    Agent, AgentHardware, AgentNetworkInfos, UpdateHardware, UpdateNetwork,
+    Agent, AgentHardware, AgentNetworkInfos, UpdateAgent, UpdateHardware, UpdateNetwork,
 };
 use crate::schema::agent_hardwares::dsl as agent_hardware_dsl;
 use crate::schema::agent_network_infos::dsl as agent_network_info_dsl;
@@ -48,6 +48,20 @@ impl GlobalState {
         diesel::insert_into(agent_dsl::agents)
             .values(agent)
             .execute(&mut *conn)
+    }
+
+    pub async fn update_agent(
+        &self,
+        id: Uuid,
+        update_agent: UpdateAgent,
+    ) -> Result<usize, diesel::result::Error> {
+        let mut con = self.pg_connection.lock().await;
+        diesel::update(agent_dsl::agents.filter(agent_dsl::id.eq(id)))
+            .set((
+                agent_dsl::name.eq(update_agent.name),
+                agent_dsl::updated_at.eq(chrono::Local::now().naive_utc()),
+            ))
+            .execute(&mut *con)
     }
 
     pub async fn delete_agent(&self, id: Uuid) -> Result<usize, diesel::result::Error> {
