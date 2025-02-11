@@ -19,12 +19,19 @@ pub async fn execute(task: &TaskRequest) -> TaskResponse {
 
     let parameters = String::from_utf8(parameters).expect("Invalid UTF-8");
 
-    let output = match Command::new("powershell")
-        .arg("-C")
-        .arg(parameters)
-        .output()
-        .await
-    {
+    let mut command = if cfg!(target_os = "windows") {
+        let mut cmd = Command::new("powershell");
+        cmd.arg("-C");
+        cmd
+    } else {
+        let mut cmd = Command::new("sh");
+        cmd.arg("-c");
+        cmd
+    };
+
+    command.arg(parameters);
+
+    let output = match command.output().await {
         Ok(output) => output,
         Err(e) => {
             error!("Failed to execute command: {:?}", e);
