@@ -23,6 +23,8 @@ impl super::Packet for TaskRequest {
         };
         let task_type = match data[16] {
             0x1 => super::TaskType::ShellCommand,
+            0x2 => super::TaskType::FileUpload,
+            0x3 => super::TaskType::FileDownload,
             _ => return Err(super::Error::InvalidData),
         };
         let parameters_size = u32::from_le_bytes([data[17], data[18], data[19], data[20]]);

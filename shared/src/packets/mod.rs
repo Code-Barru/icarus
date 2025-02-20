@@ -1,3 +1,5 @@
+mod download_request;
+mod download_response;
 mod encryption_request;
 mod encryption_response;
 mod login_request;
@@ -42,6 +44,14 @@ pub fn from_packet_bytes(data: &[u8]) -> Result<PacketEnum, Error> {
             Ok(packet) => Ok(PacketEnum::TaskResponse(packet)),
             Err(_) => Err(Error::ParseError),
         },
+        0x08 => match DownloadRequest::deserialize(data) {
+            Ok(packet) => Ok(PacketEnum::DownloadRequest(packet)),
+            Err(_) => Err(Error::ParseError),
+        },
+        0x09 => match DownloadResponse::deserialize(data) {
+            Ok(packet) => Ok(PacketEnum::DownloadResponse(packet)),
+            Err(_) => Err(Error::ParseError),
+        },
         _ => Err(Error::UnknownPacket),
     }
 }
@@ -60,6 +70,7 @@ pub enum Error {
     InvalidData,
 }
 
+#[derive(Debug)]
 pub enum PacketEnum {
     LoginRequest(LoginRequest),
     EncryptionRequest(EncryptionRequest),
@@ -68,18 +79,23 @@ pub enum PacketEnum {
     UpdateResponse(UpdateResponse),
     TaskRequest(TaskRequest),
     TaskResponse(TaskResponse),
+    DownloadRequest(DownloadRequest),
+    DownloadResponse(DownloadResponse),
 }
 
+#[derive(Debug)]
 pub struct LoginRequest {
     pub uuid: Uuid,
 }
 
+#[derive(Debug)]
 pub struct EncryptionRequest {
     pub key_length: u16,
     pub public_key: Vec<u8>,
     pub verify_token: u32,
 }
 
+#[derive(Debug)]
 pub struct EncryptionResponse {
     pub shared_secret: [u8; 256],
     pub verify_token: [u8; 256],
@@ -109,4 +125,14 @@ pub struct TaskResponse {
     pub status: TaskStatus,
     pub result_size: u32,
     pub result: Option<Vec<u8>>,
+}
+
+#[derive(Debug)]
+pub struct DownloadRequest {
+    pub task_uuid: Uuid,
+}
+
+#[derive(Debug)]
+pub struct DownloadResponse {
+    pub response: bool,
 }

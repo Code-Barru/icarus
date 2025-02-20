@@ -10,6 +10,8 @@ impl TaskType {
     pub fn to_bytes(&self) -> u8 {
         match self {
             TaskType::ShellCommand => 0x1,
+            TaskType::FileUpload => 0x2,
+            TaskType::FileDownload => 0x3,
         }
     }
 }
@@ -18,6 +20,8 @@ impl From<u8> for TaskType {
     fn from(byte: u8) -> Self {
         match byte {
             0x1 => TaskType::ShellCommand,
+            0x2 => TaskType::FileUpload,
+            0x3 => TaskType::FileDownload,
             _ => TaskType::ShellCommand,
         }
     }
@@ -34,6 +38,8 @@ where
         };
         match text.as_str() {
             "ShellCommand" => Ok(TaskType::ShellCommand),
+            "FileUpload" => Ok(TaskType::FileUpload),
+            "FileDownload" => Ok(TaskType::FileDownload),
             _ => Err("Unrecognized enum variant".into()),
         }
     }
@@ -46,6 +52,8 @@ where
     fn to_sql(&self, out: &mut Output<DB>) -> serialize::Result {
         match self {
             TaskType::ShellCommand => "ShellCommand".to_sql(out),
+            TaskType::FileUpload => "FileUpload".to_sql(out),
+            TaskType::FileDownload => "FileDownload".to_sql(out),
         }
     }
 }

@@ -3,9 +3,9 @@
     windows_subsystem = "windows"
 )]
 
-pub mod rt_client;
-pub mod state;
-pub mod tasks;
+mod rt_client;
+mod state;
+mod tasks;
 
 use std::sync::Arc;
 

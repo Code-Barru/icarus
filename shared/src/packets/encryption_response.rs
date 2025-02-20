@@ -20,11 +20,12 @@ impl super::Packet for EncryptionResponse {
         let mut verify_token = [0; 256];
         verify_token.copy_from_slice(&data[256..512]);
         let connection_type = ConnectionType::from(data[512]);
-        Ok(EncryptionResponse {
+        let response = EncryptionResponse {
             shared_secret,
             verify_token,
             connection_type,
-        })
+        };
+        Ok(response)
     }
 }
 

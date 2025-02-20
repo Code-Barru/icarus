@@ -9,6 +9,8 @@ mod task_type;
 #[diesel(sql_type = Text)]
 pub enum TaskType {
     ShellCommand,
+    FileUpload,
+    FileDownload,
 }
 
 #[derive(Debug, Clone, Serialize, diesel::AsExpression, diesel::FromSqlRow)]

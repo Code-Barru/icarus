@@ -9,6 +9,7 @@ use tokio::{
 use tracing::{debug, error};
 use uuid::Uuid;
 
+mod download;
 mod main;
 mod update;
 
@@ -109,7 +110,10 @@ impl Connection {
         match self.connection_type {
             ConnectionType::Main => self.handle_main_client().await,
             ConnectionType::Update => self.handle_update_client().await,
-            _ => (),
+            ConnectionType::FileDownload => self.handle_download_client().await,
+            _ => {
+                error!("Unknown connection type");
+            }
         }
     }
 
@@ -125,7 +129,7 @@ impl Connection {
         };
 
         let state = self.state.lock().await;
-        state.remove_connection(self.agent_uuid).await;
+        state.remove_connection(self).await;
         Ok(())
     }
 }

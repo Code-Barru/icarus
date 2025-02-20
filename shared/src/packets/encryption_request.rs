@@ -25,11 +25,13 @@ impl super::Packet for EncryptionRequest {
             data[offset + 2],
             data[offset + 3],
         ]);
-        Ok(EncryptionRequest {
+
+        let request = EncryptionRequest {
             key_length,
             public_key,
             verify_token,
-        })
+        };
+        Ok(request)
     }
 }
 

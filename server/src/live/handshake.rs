@@ -57,12 +57,15 @@ impl RTServer {
             }
         };
 
-        let encryption_response = match shared::packets::from_packet_bytes(&encryption_response) {
+        let encryption_response = shared::packets::from_packet_bytes(&encryption_response);
+        let encryption_response = match encryption_response {
             Ok(EncryptionResponse(packet)) => packet,
             _ => {
+                error!("Invalid packet: {:?}", encryption_response);
                 return Err("Invalid packet".into());
             }
         };
+
         debug!("Got encryption response");
         let connection_type = encryption_response.connection_type.clone();
 

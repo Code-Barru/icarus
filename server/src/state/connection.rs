@@ -10,16 +10,19 @@ impl GlobalState {
         self.connections.lock().await.push(connection);
     }
 
-    pub async fn remove_connection(&self, agent_uuid: Uuid) {
+    pub async fn remove_connection(&self, connection: &Connection) {
         let mut connections = self.connections.lock().await;
-        connections.retain(|c| c.agent_uuid != agent_uuid);
+        connections.retain(|c| c.shared_secret != connection.shared_secret);
     }
 
     pub async fn get_connection(&self, agent_uuid: Uuid) -> Option<Connection> {
         let connections = self.connections.lock().await;
         connections
             .iter()
-            .find(|c| c.agent_uuid == agent_uuid)
+            .find(|c| {
+                c.agent_uuid == agent_uuid
+                    && c.connection_type == shared::models::ConnectionType::Main
+            })
             .map(|c| c.clone())
     }
 
@@ -33,7 +36,6 @@ impl GlobalState {
             None => return Ok(()),
         };
         connection.send(&task.to_packet().serialize()).await;
-
         Ok(())
     }
 }

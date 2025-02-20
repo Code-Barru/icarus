@@ -102,7 +102,7 @@ impl RTServer {
                 connection.handle_client().await;
 
                 let state = cloned_state.lock().await;
-                state.remove_connection(connection.agent_uuid).await;
+                state.remove_connection(&connection).await;
             });
         }
     }
