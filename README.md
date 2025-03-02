@@ -1,4 +1,4 @@
-![Icarus](./doc/img/Icarus-background.png)
+![Icarus](./doc/img/icarus-banner.webp)
 
 # Icarus
 
@@ -54,6 +54,16 @@ cargo build --release
 docker-compose up -d
 ```
 
+### Setup environment variables
+
+```sh
+export DATABASE_URL=postgres://icarus:icarus@localhost/icarus
+export RSA_PRIVATE_KEY_PATH=path/to/private_key.pem # Optional, default is private_key.pem
+export RUST_LOG={info,debug,error,trace} # Optional, default is info
+```
+
+Can also be set in a `.env` file.
+
 ### Apply the migrations
 
 ```sh
@@ -69,23 +79,13 @@ cp ../target/release/agent.exe dist/
 cp ../target/release/setup.exe dist/
 ```
 
-### Setup environment variables
-
-```sh
-export DATABASE_URL=postgres://icarus:icarus@localhost/icarus
-export RSA_PRIVATE_KEY_PATH=path/to/private_key.pem # Optional, default is private_key.pem
-export RUST_LOG={info,debug,error,trace} # Optional, default is info
-```
-
-Can also be set in a `.env` file.
-
 ### Launch the server
 
 ```sh
 cargo run -p server --release
 ```
 
-You now just have to upload "stage 1" to the target !
+You now just have to upload "setup" to the target !
 
 ## License
 
